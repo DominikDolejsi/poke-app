@@ -2,10 +2,14 @@
   "name": "pokemon-app-backend",
   "version": "1.0.0",
   "description": "This is backend for my pokemon App",
-  "main": "server.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "test": "npm run test"
+    "start": "ts-node src/server.ts",
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "lint": "elsint --fix src test",
+    "test": "jest"
   },
   "author": "Dominik Dolejší",
   "license": "ISC",
@@ -18,7 +22,8 @@
     "morgan": "^1.10.0",
     "prisma": "^4.14.0",
     "supertest": "^6.3.3",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
