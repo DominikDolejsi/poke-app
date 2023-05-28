@@ -17,7 +17,7 @@ export const getAll = async (
 };
 
 export const create = async (
-  req: Request<object, UserDB, User>,
+  req: Request<Record<string, never>, UserDB, User>,
   res: Response<UserDB>,
   next: NextFunction,
 ) => {
@@ -30,40 +30,40 @@ export const create = async (
 };
 
 export const getOne = async (
-  req: Request<ParamsWithUuid>,
-  res: Response<>,
+  req: Request<ParamsWithUuid, UserDB>,
+  res: Response<UserDB>,
   next: NextFunction,
 ) => {
   try {
-    const foundUser = await usersServices.findUser();
+    const foundUser = await usersServices.findOne(req.params.id);
     res.status(200).json(foundUser);
   } catch (error) {
     next(error);
   }
 };
 
-// export const updateUser = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const updatedUser = await usersServices.updateUser();
-//     res.status(200).json(updatedUser);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+export const update = async (
+  req: Request<ParamsWithUuid, UserDB, User>,
+  res: Response<UserDB>,
+  next: NextFunction,
+) => {
+  try {
+    const updatedUser = await usersServices.update(req.params.id, req.body);
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+};
 
-// export const deleteUser = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const deletedUser = await usersServices.deleteUser();
-//     res.status(200).json(deletedUser);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+export const deleteOne = async (
+  req: Request<ParamsWithUuid>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const deletedUser = await usersServices.deleteOne(req.params.id);
+    res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+};

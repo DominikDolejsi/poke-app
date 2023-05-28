@@ -14,7 +14,7 @@ const PORT = process.env.PORT;
 
 server.use(morgan("dev"));
 server.use(helmet());
-server.use(cors);
+server.use(cors());
 server.use(express.json());
 
 server.use("/api/v1", apiV1);

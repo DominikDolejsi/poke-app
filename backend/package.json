@@ -9,7 +9,8 @@
     "dev": "nodemon src/server.ts",
     "build": "tsc",
     "lint": "elsint --fix src test",
-    "test": "jest"
+    "test": "jest",
+    "prisma": "npx prisma migrate dev"
   },
   "author": "Dominik Dolejší",
   "license": "ISC",
