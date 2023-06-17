@@ -3,7 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
-import { notFoundHandler, errorHandler } from "./middlewares.js";
+import { handleNotFound, handleError } from "./middlewares.js";
 import apiV1 from "./api/v1/apiRouter.js";
 
 dotenv.config();
@@ -19,8 +19,8 @@ server.use(express.json());
 
 server.use("/api/v1", apiV1);
 
-server.use(notFoundHandler);
-server.use(errorHandler);
+server.use(handleNotFound);
+server.use(handleError);
 
 server.listen(PORT, () => {
   console.log("Server up and ready on port 3000");
