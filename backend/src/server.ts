@@ -4,10 +4,9 @@ import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { handleNotFound, handleError } from "./middlewares.js";
+import { handleNotFound, handleError, verifyJWT } from "./middlewares.js";
 import apiV1 from "./api/v1/apiRouter.js";
 import auth from "./auth/auth.routes.js";
-import { authorizeUser } from "./middlewares.js";
 
 const server = express();
 
@@ -24,7 +23,7 @@ server.use(cookieParser());
 
 server.use("/", auth);
 
-server.use(authorizeUser)
+server.use(verifyJWT);
 server.use("/api/v1", apiV1);
 
 server.use(handleNotFound);

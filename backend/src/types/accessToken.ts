@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const accessToken = z.object({
+export const AccessToken = z.object({
   accessToken: z.string().min(1),
 });
 
-export type accessToken = z.infer<typeof accessToken>;
+export type AccessToken = z.infer<typeof AccessToken>;

@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
-import { Users } from "../api/v1/users/users.model.js";
+import { UserDB, Users } from "../api/v1/users/users.model.js";
 import "dotenv/config";
-import { LoginCredentials } from "./auth.model.js";
+import { LoginCredentials } from "../types/LoginCredentials.js";
+import { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 export const authenticateUser = async (loginCredentials: LoginCredentials) => {
@@ -10,13 +11,6 @@ export const authenticateUser = async (loginCredentials: LoginCredentials) => {
       email: loginCredentials.email,
     },
   });
-  const isPasswordCorrect = await bcrypt.compare(
-    loginCredentials.password,
-    foundUser.password,
-  );
-  if (!isPasswordCorrect) {
-    throw new Error("Password doesn't match.");
-  }
   return foundUser;
 };
 
@@ -48,15 +42,24 @@ export const saveRefreshToken = async (id: string, refreshToken: string) => {
 export const verifyRefreshToken = async (refreshToken: string) => {
   if (!process.env.REFRESH_TOKEN_SECRET)
     throw new Error("Secret for refresh token missing");
+
   const foundUser = await Users.findUniqueOrThrow({
-    where: { refreshToken },
+    where: { refreshToken: refreshToken },
   });
+
   const decodedToken = jwt.verify(
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
-  );
-  console.log(decodedToken);
-  if (decodedToken !== foundUser.id) throw new Error("Payload doesn't match");
+  ) as JwtPayload;
+
+  if (decodedToken.id !== foundUser.id)
+    throw new Error("Payload doesn't match");
+
   const accessToken = createAccessToken(foundUser.id);
   return accessToken;
+};
+
+export const checkPassword = async (user: UserDB, password: string) => {
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordCorrect) throw new Error("Incorrect password");
 };

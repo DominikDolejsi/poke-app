@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as usersController from "./users.controllers.js";
 
-import { validateRequest, hashPassword } from "../../../middlewares.js";
+import { validateRequest, hashPassword} from "../../../middlewares.js";
 import { User } from "./users.model.js";
 import { ParamsWithUuid } from "../../../types/paramsWithId.js";
 
