@@ -8,9 +8,10 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": false
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": ["src/**/*", "test/**/*", "vitest-environment-express/express_environment.ts"],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"

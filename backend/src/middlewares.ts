@@ -56,6 +56,9 @@ export const verifyJWT = async (
     req.headers.admin = String(foundUser.admin);
     next();
   } catch (error) {
+    if (res.statusCode === 200) {
+      res.status(422);
+    }
     next(error);
   }
 };

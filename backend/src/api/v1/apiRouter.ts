@@ -1,6 +1,6 @@
 import { Router } from "express";
 import usersRouter from "./users/users.routes.js";
-import { authorizeUser } from "../../middlewares.js";
+import { authorizeUser, verifyJWT } from "../../middlewares.js";
 
 const router = Router();
 
@@ -10,6 +10,7 @@ router.get("/", (req, res) => {
   });
 });
 
+router.use(verifyJWT);
 router.use(authorizeUser);
 router.use("/users", usersRouter);
 
