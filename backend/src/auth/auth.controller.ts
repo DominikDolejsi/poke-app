@@ -3,7 +3,7 @@ import * as userServices from "../api/v1/users/users.services.js";
 import * as authServices from "./auth.services.js";
 import { LoginCredentials } from "../types/LoginCredentials.js";
 import { User, UserDB } from "../api/v1/users/users.model.js";
-import { AccessToken } from "../types/AccessToken.js";
+import { AccessToken } from "../types/accessToken.js";
 
 export const register = async (
   req: Request<object, object, User>,

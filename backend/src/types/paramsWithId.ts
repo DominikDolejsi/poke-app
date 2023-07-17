@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ParamsWithId = z.object({
-  id: z.number().int().positive(),
+  id: z.string().min(1),
 });
 
 export const ParamsWithUuid = z.object({
