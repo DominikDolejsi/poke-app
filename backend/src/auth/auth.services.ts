@@ -10,6 +10,7 @@ export const authenticateUser = async (loginCredentials: LoginCredentials) => {
     where: {
       email: loginCredentials.email,
     },
+    include: { lists: true },
   });
   return foundUser;
 };

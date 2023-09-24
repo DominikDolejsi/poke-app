@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { FormType, FormTypeDB } from "./formTypes.model.js";
+import { FormType, FormTypeDB, updateFormType } from "./formTypes.model.js";
 import * as formTypesServices from "./formTypes.services.js";
 import { ParamsWithId } from "../../../types/paramsWithId.js";
 
@@ -35,7 +35,9 @@ export const getOne = async (
   next: NextFunction,
 ) => {
   try {
-    const foundFormType = await formTypesServices.findOne(Number(req.params.id));
+    const foundFormType = await formTypesServices.findOne(
+      Number(req.params.id),
+    );
     res.status(200).json(foundFormType);
   } catch (error) {
     next(error);
@@ -43,12 +45,15 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, FormTypeDB, FormType>,
+  req: Request<ParamsWithId, FormTypeDB, updateFormType>,
   res: Response<FormTypeDB>,
   next: NextFunction,
 ) => {
   try {
-    const updatedFormType = await formTypesServices.update(Number(req.params.id), req.body);
+    const updatedFormType = await formTypesServices.update(
+      Number(req.params.id),
+      req.body,
+    );
     res.status(200).json(updatedFormType);
   } catch (error) {
     next(error);
@@ -61,7 +66,9 @@ export const deleteOne = async (
   next: NextFunction,
 ) => {
   try {
-    const deletedFormType = await formTypesServices.deleteOne(Number(req.params.id));
+    const deletedFormType = await formTypesServices.deleteOne(
+      Number(req.params.id),
+    );
     res.sendStatus(204);
   } catch (error) {
     next(error);

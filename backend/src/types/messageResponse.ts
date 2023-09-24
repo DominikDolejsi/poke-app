@@ -1,5 +1,5 @@
-type messageResponse = {
+type MessageResponse = {
   message: string;
 };
 
-export default messageResponse;
+export default MessageResponse;

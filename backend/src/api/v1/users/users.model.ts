@@ -13,8 +13,13 @@ export const UserDB = User.extend({
   createdAt: z.date(),
   updatedAt: z.nullable(z.date()),
   refreshToken: z.nullable(z.string()),
+  lists: z.object({}).array().nullable().optional(),
 });
+
+export const updateUser = User.partial();
+
 
 export type User = z.infer<typeof User>;
 export type UserDB = z.infer<typeof UserDB>;
+export type updateUser = z.infer<typeof updateUser>;
 export const Users = prisma.user;

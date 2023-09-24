@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Game, GameDB } from "./games.model.js";
+import { Game, GameDB, updateGame } from "./games.model.js";
 import * as gamesServices from "./games.services.js";
 import { ParamsWithId } from "../../../types/paramsWithId.js";
 
@@ -43,12 +43,15 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, GameDB, Game>,
+  req: Request<ParamsWithId, GameDB, updateGame>,
   res: Response<GameDB>,
   next: NextFunction,
 ) => {
   try {
-    const updatedGame = await gamesServices.update(Number(req.params.id), req.body);
+    const updatedGame = await gamesServices.update(
+      Number(req.params.id),
+      req.body,
+    );
     res.status(200).json(updatedGame);
   } catch (error) {
     next(error);
