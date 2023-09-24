@@ -108,6 +108,9 @@ export const handleError = (
   next: NextFunction,
 ) => {
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+  if (err.name === "NotFoundError") {
+    res.status(404).json({ message: "Not Found" });
+  }
   if (err instanceof ZodError) {
     res.status(422).send(err);
   } else if (err instanceof PrismaClientKnownRequestError) {

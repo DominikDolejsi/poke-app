@@ -1,8 +1,8 @@
-import messageResponse from "./messageResponse.js";
+import MessageResponse from "./messageResponse.js";
 
 type errorResponse = {
   stack?: string;
 }
-& messageResponse;
+& MessageResponse;
 
 export default errorResponse;
