@@ -1,5 +1,5 @@
-type notFoundResponse = {
+type NotFoundResponse = {
   error: string,
 }
 
-export default notFoundResponse;
+export default NotFoundResponse;

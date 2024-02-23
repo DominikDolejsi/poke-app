@@ -1,7 +1,16 @@
+import { FormatedQuery } from "../../../types/QueryTypes.js";
 import { Users, UserDB, User, updateUser } from "./users.model.js";
 
-export const findAll = async (): Promise<UserDB[]> => {
-  const foundUsers = await Users.findMany({ include: { lists: true } });
+export const findAll = async ({
+  limit,
+  offset,
+  deep,
+}: FormatedQuery): Promise<UserDB[]> => {
+  const foundUsers = await Users.findMany({
+    take: limit,
+    skip: offset,
+    include: { lists: deep },
+  });
   return foundUsers;
 };
 

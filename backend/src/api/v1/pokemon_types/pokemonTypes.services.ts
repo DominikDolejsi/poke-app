@@ -1,3 +1,4 @@
+import { FormatedQuery } from "../../../types/QueryTypes.js";
 import {
   PokemonTypes,
   PokemonTypeDB,
@@ -5,13 +6,19 @@ import {
   updatePokemonType,
 } from "./pokemonTypes.model.js";
 
-export const findAll = async (): Promise<PokemonTypeDB[]> => {
+export const findAll = async ({
+  limit,
+  offset,
+  deep,
+}: FormatedQuery): Promise<PokemonTypeDB[]> => {
   const foundPokemonTypes = await PokemonTypes.findMany({
+    take: limit,
+    skip: offset,
     include: {
-      firstSlotPokemon: true,
-      secondSlotPokemon: true,
-      firstSlotForm: true,
-      secondSlotForm: true,
+      firstSlotPokemon: deep,
+      secondSlotPokemon: deep,
+      firstSlotForm: deep,
+      secondSlotForm: deep,
     },
   });
   return foundPokemonTypes;

@@ -2,14 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { User, UserDB } from "./users.model.js";
 import * as usersServices from "./users.services.js";
 import { ParamsWithUuid } from "../../../types/paramsWithId.js";
+import { EmptyParams, EmptyBody } from "../../../types/ExpressTypes.js";
+import { ReqQuery } from "../../../types/QueryTypes.js";
+import { queryFormater } from "../../../utils/queryFormater.js";
 
 export const getAll = async (
-  req: Request,
+  req: Request<EmptyParams, EmptyBody, EmptyBody, ReqQuery>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const foundUsers = await usersServices.findAll();
+    const reqQuery = queryFormater(req.query);
+    const foundUsers = await usersServices.findAll(reqQuery);
     res.status(200).json(foundUsers);
   } catch (error) {
     next(error);

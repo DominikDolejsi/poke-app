@@ -14,9 +14,9 @@ export type FormatedStats = {
   health: number;
   speed: number;
   attack: number;
-  defence: number;
+  defense: number;
   specialAttack: number;
-  specialDefence: number;
+  specialDefense: number;
 };
 
 export type defaultVarietyUrl = string | null;
@@ -75,15 +75,18 @@ export type DBtype = {
 }[];
 
 export type sprites = {
-  home: {
-    front_default: string | null;
-    front_female: string | null;
-    front_shiny: string | null;
-    front_shiny_female: string | null;
-  };
-  ["official-artwork"]: {
-    front_default: string | null;
-    front_shiny: string | null;
+  front_default: string | null;
+  other: {
+    home: {
+      front_default: string | null;
+      front_female: string | null;
+      front_shiny: string | null;
+      front_shiny_female: string | null;
+    };
+    ["official-artwork"]: {
+      front_default: string | null;
+      front_shiny: string | null;
+    };
   };
 };
 
@@ -123,11 +126,10 @@ export type PokemonSpecies = {
     };
   }[];
 };
+
 export type PokemonPokemon = {
   name: string;
-  sprites: {
-    other: sprites;
-  };
+  sprites: sprites;
   stats: Stat[];
   types: {
     slot: number;

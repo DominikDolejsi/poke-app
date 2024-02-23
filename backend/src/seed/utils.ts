@@ -1,3 +1,5 @@
+import { PokemonForm } from "../api/v1/pokemon_forms/pokemonForms.model.js";
+import { PokemonDB } from "../api/v1/pokemons/pokemons.model.js";
 import {
   Stats,
   FormatedStats,
@@ -10,6 +12,8 @@ import {
   sprites,
   PokemonChain,
   chainDeep,
+  PokemonSpecies,
+  PokemonPokemon,
 } from "./types.js";
 
 export const formatStats = (stats: Stats) => {
@@ -17,8 +21,8 @@ export const formatStats = (stats: Stats) => {
     health: 0,
     speed: 0,
     specialAttack: 0,
-    specialDefence: 0,
-    defence: 0,
+    specialDefense: 0,
+    defense: 0,
     attack: 0,
   };
 
@@ -30,13 +34,13 @@ export const formatStats = (stats: Stats) => {
       formatedStats.attack = stat.base_stat;
     }
     if (stat.stat.name === "defense") {
-      formatedStats.defence = stat.base_stat;
+      formatedStats.defense = stat.base_stat;
     }
     if (stat.stat.name === "special-attack") {
       formatedStats.specialAttack = stat.base_stat;
     }
     if (stat.stat.name === "special-defense") {
-      formatedStats.specialDefence = stat.base_stat;
+      formatedStats.specialDefense = stat.base_stat;
     }
     if (stat.stat.name === "speed") {
       formatedStats.speed = stat.base_stat;
@@ -108,7 +112,7 @@ export const resolveEvolvedTo = async (speciesData: speciesData) => {
   const flatEvolvedToArray = evolvedToArray.flat(Infinity);
 
   if (flatEvolvedToArray[0] === "final") return null;
-  
+
   const arrayOfIndexes: number[] = [];
   for (const species of flatEvolvedToArray) {
     const speciesData = await advancedFetch(species.species.url);
@@ -312,15 +316,99 @@ export const prepareDBTypes = async () => {
 };
 
 export const resolveSprites = (sprites: sprites) => {
-  const home = sprites.home;
-  const artwork = sprites["official-artwork"];
+  const home = sprites.other.home;
+  const artwork = sprites.other["official-artwork"];
+  const mini = sprites.front_default;
 
   return {
-    artworkSprite: artwork.front_default ?? null,
-    artworkSpriteShiny: artwork.front_shiny ?? null,
+    artworkMale: artwork.front_default ?? null,
+    artworkFemale: artwork.front_shiny ?? null,
+    artworkMaleShiny: artwork.front_shiny ?? null,
+    artworkFemaleShiny: artwork.front_shiny ?? null,
     homeMale: home.front_default,
     homeFemale: home.front_female,
     homeMaleShiny: home.front_shiny,
     homeFemaleShiny: home.front_shiny_female,
   };
+};
+
+export const findForms = (speciesData: PokemonSpecies) => {
+  const formUrls: string[] = [];
+
+  for (const variety of speciesData.varieties) {
+    if (variety.is_default) continue;
+    formUrls.push(variety.pokemon.url);
+  }
+
+  return formUrls;
+};
+
+export const fetchFormData = async (formUrls: string[]) => {
+  const formData: PokemonPokemon[] = [];
+  for (const url of formUrls) {
+    const pokemonData: PokemonPokemon = await advancedFetch(url);
+
+    if (!pokemonData.sprites.other["official-artwork"].front_default) continue;
+
+    formData.push(pokemonData);
+  }
+  return formData;
+};
+
+export const formatForms = (
+  formData: PokemonPokemon[],
+  originalPokemon: PokemonPokemon,
+  DBPokemon: PokemonDB,
+  DBtypes: DBtype,
+) => {
+  const formatedForms: PokemonForm[] = [];
+
+  for (const form of formData) {
+    const formTypes = resolveTypes(form.types, DBtypes);
+    const formStats = formatStats(form.stats);
+
+    const newPokeForm: PokemonForm = {
+      name: form.name, // to není konečná, jméno forem potřebuje formátovat
+      artworkSprite: form.sprites.other["official-artwork"].front_default,
+      artworkSpriteShiny: form.sprites.other["official-artwork"].front_shiny,
+      homeMale: form.sprites.other.home.front_default,
+      homeMaleShiny: form.sprites.other.home.front_shiny,
+      homeFemale: form.sprites.other.home.front_female,
+      homeFemaleShiny: form.sprites.other.home.front_shiny_female,
+      miniSprite: form.sprites.front_default,
+      attack: formStats.attack,
+      defense: formStats.defense,
+      speed: formStats.speed,
+      specialAttack: formStats.specialAttack,
+      specialDefense: formStats.specialDefense,
+      health: formStats.health,
+      generation: null,
+      games: null,
+      firstType: formTypes?.firstType,
+      secondType: formTypes?.secondType,
+      pokemon: { id: DBPokemon.id },
+      formType: ;/// tohle je trochu spojený se jménem
+    };
+  }
+};
+
+export const filterForms = async (speciesData: PokemonSpecies) => {
+  const varietes = speciesData.varieties;
+
+  const forms = varietes.filter((value) => value.is_default !== true);
+
+  const filteredForms = [];
+
+  for (const form of forms) {
+    const formData: PokemonPokemon = await advancedFetch(form.pokemon.url);
+
+    if (
+      formData.sprites.front_default &&
+      formData.sprites.other["official-artwork"].front_default
+    ) {
+      filteredForms.push(form.pokemon.url);
+    }
+  }
+
+  return filteredForms;
 };

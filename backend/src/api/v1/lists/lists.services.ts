@@ -1,9 +1,16 @@
 import { IdList } from "../../../types/IdList.js";
+import { FormatedQuery } from "../../../types/QueryTypes.js";
 import { Lists, ListDB, List, updateList } from "./lists.model.js";
 
-export const findAll = async (): Promise<ListDB[]> => {
+export const findAll = async ({
+  limit,
+  offset,
+  deep,
+}: FormatedQuery): Promise<ListDB[]> => {
   const foundLists = await Lists.findMany({
-    include: { user: true, entities: true },
+    take: limit,
+    skip: offset,
+    include: { user: deep, entities: deep },
   });
 
   return foundLists;

@@ -3,17 +3,17 @@ import { prisma } from "../../../db.js";
 
 export const PokemonForm = z.object({
   name: z.string().min(1),
-  species: z.nullable(z.string().min(1)),
-  gender: z.nullable(z.boolean()),
   generation: z.nullable(z.number().int()),
   health: z.nullable(z.number().int()),
   speed: z.nullable(z.number().int()),
   attack: z.nullable(z.number().int()),
-  defence: z.nullable(z.number().int()),
+  defense: z.nullable(z.number().int()),
   specialAttack: z.nullable(z.number().int()),
-  specialDefence: z.nullable(z.number().int()),
-  artworkSprite: z.nullable(z.string().min(1)),
-  artworkSpriteShiny: z.nullable(z.string().min(1)),
+  specialDefense: z.nullable(z.number().int()),
+  artworkMale: z.nullable(z.string().min(1)),
+  artworkFemale: z.nullable(z.string().min(1)),
+  artworkMaleShiny: z.nullable(z.string().min(1)),
+  artworkFemaleShiny: z.nullable(z.string().min(1)),
   homeMale: z.nullable(z.string().min(1)),
   homeFemale: z.nullable(z.string().min(1)),
   homeMaleShiny: z.nullable(z.string().min(1)),
@@ -21,7 +21,7 @@ export const PokemonForm = z.object({
   pokemon: z.object({ id: z.number().int() }),
   firstType: z.nullable(z.object({ id: z.number().int() })).optional(),
   secondType: z.nullable(z.object({ id: z.number().int() })).optional(),
-  formType: z.nullable(z.object({ id: z.number().int() })).optional(),
+  formTypes: z.nullable(z.object({ id: z.number().int() }).array()).optional(),
   games: z.nullable(z.object({ id: z.number().int() }).array()).optional(),
 });
 

@@ -4,6 +4,7 @@ import { LoginCredentials } from "../types/LoginCredentials.js";
 import { hashPassword, validateRequest } from "../middlewares.js";
 import * as authController from "./auth.controller.js";
 import { JwtToken } from "../types/JwtToken.js";
+import { ParamsWithJWT } from "../types/paramsWIthJWT.js";
 
 const router = Router();
 
@@ -18,5 +19,9 @@ router
 router
   .route("/refresh")
   .get(validateRequest({ cookie: JwtToken }), authController.refresh);
+
+router
+  .route("/verify")
+  .get(validateRequest({ params: ParamsWithJWT }), authController.verfiyEmail);
 
 export default router;

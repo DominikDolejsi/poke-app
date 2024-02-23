@@ -4,9 +4,9 @@ import { prisma } from "../../../db.js";
 export const ListEntity = z.object({
   list: z.object({ id: z.number().int() }),
   pokemon: z.nullable(z.object({ id: z.number().int() })).optional(),
-  forms: z.object({ id: z.number().int() }).array().optional(),
-  pokemonGender: z.nullable(z.boolean()),
-  formGender: z.nullable(z.boolean()),
+  form: z.nullable(z.object({ id: z.number().int() })).optional(),
+  gender: z.nullable(z.boolean()),
+  shiny: z.nullable(z.boolean()),
 });
 
 export const ListEntityDB = ListEntity.extend({

@@ -1,3 +1,4 @@
+import { FormatedQuery } from "../../../types/QueryTypes.js";
 import {
   PokemonForms,
   PokemonForm,
@@ -5,14 +6,20 @@ import {
   updatePokemonForm,
 } from "./pokemonForms.model.js";
 
-export const findAll = async (): Promise<PokemonFormDB[]> => {
+export const findAll = async ({
+  limit,
+  offset,
+  deep,
+}: FormatedQuery): Promise<PokemonFormDB[]> => {
   const foundPokemonForms = await PokemonForms.findMany({
+    take: limit,
+    skip: offset,
     include: {
-      firstType: true,
-      secondType: true,
-      pokemon: true,
-      games: true,
-      listEntities: true,
+      firstType: deep,
+      secondType: deep,
+      pokemon: deep,
+      games: deep,
+      listEntities: deep,
     },
   });
   return foundPokemonForms;
@@ -21,7 +28,8 @@ export const findAll = async (): Promise<PokemonFormDB[]> => {
 export const create = async (
   newPokemonForm: PokemonForm,
 ): Promise<PokemonFormDB> => {
-  const { pokemon, firstType, secondType, formType, games, ...props } = newPokemonForm;
+  const { pokemon, firstType, secondType, formTypes, games, ...props } =
+    newPokemonForm;
 
   let updatedPokemonForm;
 
@@ -39,11 +47,15 @@ export const create = async (
     },
   });
 
-  if (formType) {
+  if (formTypes) {
+    const formTypeIds = formTypes.map((formType) => {
+      return { id: formType.id };
+    });
+
     updatedPokemonForm = await PokemonForms.update({
       where: { id: createdPokemonForm.id },
       data: {
-        formType: { connect: { id: formType.id } },
+        formTypes: { connect: formTypeIds },
       },
       include: {
         firstType: true,
@@ -59,7 +71,7 @@ export const create = async (
     updatedPokemonForm = await PokemonForms.update({
       where: { id: createdPokemonForm.id },
       data: {
-        firstType: { connect: {id: firstType.id} },
+        firstType: { connect: { id: firstType.id } },
       },
       include: {
         firstType: true,
@@ -70,12 +82,12 @@ export const create = async (
       },
     });
   }
-  
+
   if (secondType) {
     updatedPokemonForm = await PokemonForms.update({
       where: { id: createdPokemonForm.id },
       data: {
-        secondType: {connect: {id: secondType.id}},
+        secondType: { connect: { id: secondType.id } },
       },
       include: {
         firstType: true,
@@ -132,7 +144,8 @@ export const update = async (
   pokemonFormId: number,
   newPokemonForm: updatePokemonForm,
 ): Promise<PokemonFormDB> => {
-  const { pokemon, firstType, secondType, formType, games, ...props } = newPokemonForm;
+  const { pokemon, firstType, secondType, formTypes, games, ...props } =
+    newPokemonForm;
 
   let updatedPokemonForm;
 
@@ -165,11 +178,15 @@ export const update = async (
     });
   }
 
-  if (formType) {
+  if (formTypes) {
+    const formTypeIds = formTypes.map((formType) => {
+      return { id: formType.id };
+    });
+
     updatedPokemonForm = await PokemonForms.update({
       where: { id: pokemonFormId },
       data: {
-        formType: { connect: { id: formType.id } },
+        formTypes: { connect: formTypeIds },
       },
       include: {
         firstType: true,
@@ -185,7 +202,7 @@ export const update = async (
     updatedPokemonForm = await PokemonForms.update({
       where: { id: pokemonFormId },
       data: {
-        firstType: { connect: {id: firstType.id} },
+        firstType: { connect: { id: firstType.id } },
       },
       include: {
         firstType: true,
@@ -196,12 +213,12 @@ export const update = async (
       },
     });
   }
-  
+
   if (secondType) {
     updatedPokemonForm = await PokemonForms.update({
       where: { id: pokemonFormId },
       data: {
-        secondType: {connect: {id: secondType.id}},
+        secondType: { connect: { id: secondType.id } },
       },
       include: {
         firstType: true,

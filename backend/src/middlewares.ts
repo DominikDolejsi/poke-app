@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import errorResponse from "./types/errorResponse.js";
-import notFoundResponse from "./types/notFoundResponse.js";
+import ErrorResponse from "./types/ErrorResponse.js";
+import NotFoundResponse from "./types/NotFoundResponse.js";
 import { ZodError } from "zod";
 import RequestValidators from "./types/RequestValidators.js";
 import { User, Users } from "./api/v1/users/users.model.js";
@@ -104,7 +104,7 @@ export const validateRequest = (validators: RequestValidators) => {
 export const handleError = (
   err: Error,
   req: Request,
-  res: Response<errorResponse>,
+  res: Response<ErrorResponse>,
   next: NextFunction,
 ) => {
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
@@ -126,7 +126,7 @@ export const handleError = (
 
 export const handleNotFound = (
   req: Request,
-  res: Response<notFoundResponse>,
+  res: Response<NotFoundResponse>,
   next: NextFunction,
 ) => {
   res.status(404);

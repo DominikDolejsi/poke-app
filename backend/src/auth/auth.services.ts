@@ -33,6 +33,15 @@ export const createRefreshToken = (id: string) => {
   return refreshToken;
 };
 
+export const createEmailToken = (id: string) => {
+  if (!process.env.EMAIL_TOKEN_SECRET)
+    throw new Error("Secret for email token missing");
+  const emailToken = jwt.sign({ id }, process.env.EMAIL_TOKEN_SECRET, {
+    expiresIn: "1d",
+  });
+  return emailToken;
+};
+
 export const saveRefreshToken = async (id: string, refreshToken: string) => {
   await Users.update({
     where: { id },
@@ -44,14 +53,14 @@ export const verifyRefreshToken = async (refreshToken: string) => {
   if (!process.env.REFRESH_TOKEN_SECRET)
     throw new Error("Secret for refresh token missing");
 
-  const foundUser = await Users.findUniqueOrThrow({
-    where: { refreshToken: refreshToken },
-  });
-
   const decodedToken = jwt.verify(
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
   ) as JwtPayload;
+
+  const foundUser = await Users.findUniqueOrThrow({
+    where: { refreshToken: refreshToken },
+  });
 
   if (decodedToken.id !== foundUser.id)
     throw new Error("Payload doesn't match");
@@ -63,4 +72,30 @@ export const verifyRefreshToken = async (refreshToken: string) => {
 export const checkPassword = async (user: UserDB, password: string) => {
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) throw new Error("Incorrect password");
+};
+
+export const checkEmail = async (user: UserDB) => {
+  if (user.emailToken) throw new Error("Email not verified");
+};
+
+export const verifyEmailToken = async (emailToken: string) => {
+  if (!process.env.EMAIL_TOKEN_SECRET)
+    throw new Error("Secret for email token missing");
+
+  const decodedToken = jwt.verify(
+    emailToken,
+    process.env.EMAIL_TOKEN_SECRET,
+  ) as JwtPayload;
+
+  const foundUser = await Users.findUniqueOrThrow({
+    where: { id: decodedToken.id },
+  });
+
+  if (decodedToken.id !== foundUser.id)
+    throw new Error("Payload doesn't match");
+
+  await Users.update({
+    where: { id: decodedToken.id },
+    data: { emailToken: null },
+  });
 };

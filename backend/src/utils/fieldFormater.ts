@@ -1,4 +1,4 @@
-const StringToArray = (value: string) => {
+const stringToArray = (value: string) => {
   const parsedValue = parseFloat(value);
   if (isNaN(parsedValue)) return null;
   return parsedValue;
@@ -6,7 +6,7 @@ const StringToArray = (value: string) => {
 
 export const isArrayinString = (value: string) => {
   if (!value) return true;
-  const formatedToArray = value.split(" ").map(StringToArray);
+  const formatedToArray = value.split(" ").map(stringToArray);
   if (formatedToArray.includes(null)) return false;
   return true;
 };

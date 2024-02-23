@@ -6,14 +6,18 @@ import {
 } from "./pokemonForms.model.js";
 import * as pokemonFormsServices from "./pokemonForms.services.js";
 import { ParamsWithId } from "../../../types/paramsWithId.js";
+import { EmptyParams, EmptyBody } from "../../../types/ExpressTypes.js";
+import { ReqQuery } from "../../../types/QueryTypes.js";
+import { queryFormater } from "../../../utils/queryFormater.js";
 
 export const getAll = async (
-  req: Request,
+  req: Request<EmptyParams, EmptyBody, EmptyBody, ReqQuery>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const foundPokemonForms = await pokemonFormsServices.findAll();
+    const reqQuery = queryFormater(req.query);
+    const foundPokemonForms = await pokemonFormsServices.findAll(reqQuery);
     res.status(200).json(foundPokemonForms);
   } catch (error) {
     next(error);

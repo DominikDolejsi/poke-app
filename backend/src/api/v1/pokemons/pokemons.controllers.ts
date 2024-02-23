@@ -2,20 +2,18 @@ import { Request, Response, NextFunction } from "express";
 import { PokemonDB, Pokemon, updatePokemon } from "./pokemons.model.js";
 import * as pokemonsServices from "./pokemons.services.js";
 import { ParamsWithId } from "../../../types/paramsWithId.js";
-import { getAllQuery } from "../../../types/queryTypes.js";
+import { EmptyBody, EmptyParams } from "../../../types/ExpressTypes.js";
+import { queryFormater } from "../../../utils/queryFormater.js";
+import { ReqQuery } from "../../../types/QueryTypes.js";
 
 export const getAll = async (
-  req: Request<
-    Record<string, never>,
-    Record<string, never>,
-    Record<string, never>,
-    getAllQuery
-  >,
+  req: Request<EmptyParams, EmptyBody, EmptyBody, ReqQuery>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const foundPokemons = await pokemonsServices.findAll(req.query);
+    const reqQuery = queryFormater(req.query);
+    const foundPokemons = await pokemonsServices.findAll(reqQuery);
     res.status(200).json(foundPokemons);
   } catch (error) {
     next(error);
@@ -36,18 +34,16 @@ export const create = async (
 };
 
 export const getOne = async (
-  req: Request<ParamsWithId, PokemonDB>,
+  req: Request<ParamsWithId, PokemonDB, EmptyBody, ReqQuery>,
   res: Response<PokemonDB>,
   next: NextFunction,
 ) => {
   try {
-    if (req.query.nationalNumber === "true") {
-      const foundPokemon = await pokemonsServices.findOneByNationalNumber(
-        Number(req.params.id),
-      );
-      res.status(200).json(foundPokemon);
-    }
-    const foundPokemon = await pokemonsServices.findOne(Number(req.params.id));
+    const reqQuery = queryFormater(req.query);
+    const foundPokemon = await pokemonsServices.findOne(
+      Number(req.params.id),
+      reqQuery,
+    );
     res.status(200).json(foundPokemon);
   } catch (error) {
     next(error);

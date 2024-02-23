@@ -3,14 +3,18 @@ import { ListEntity, ListEntityDB } from "./listEntities.model.js";
 import * as listEntitiesServices from "./listEntities.services.js";
 import { ParamsWithId } from "../../../types/paramsWithId.js";
 import { IdList } from "../../../types/IdList.js";
+import { EmptyParams, EmptyBody } from "../../../types/ExpressTypes.js";
+import { ReqQuery } from "../../../types/QueryTypes.js";
+import { queryFormater } from "../../../utils/queryFormater.js";
 
 export const getAll = async (
-  req: Request,
+  req: Request<EmptyParams, EmptyBody, EmptyBody, ReqQuery>,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const foundListEntities = await listEntitiesServices.findAll();
+    const reqQuery = queryFormater(req.query);
+    const foundListEntities = await listEntitiesServices.findAll(reqQuery);
     res.status(200).json(foundListEntities);
   } catch (error) {
     next(error);

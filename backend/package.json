@@ -5,8 +5,8 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "dev": "nodemon src/index.ts",
+    "start": "tsx src/index.ts",
+    "dev": "tsx --watch src/index.ts",
     "build": "tsc",
     "lint": "elsint --fix src test",
     "test": "vitest",
@@ -26,6 +26,7 @@
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
+    "resend": "^1.1.0",
     "uuid": "^9.0.0",
     "zod": "^3.21.4"
   },
@@ -46,12 +47,11 @@
     "@vitest/coverage-v8": "^0.32.2",
     "eslint": "^8.40.0",
     "eslint-config-prettier": "^8.8.0",
-    "nodemon": "^2.0.22",
     "pactum": "^3.4.1",
     "prettier": "^2.8.8",
     "prisma": "^5.3.1",
     "supertest": "^6.3.3",
-    "ts-node": "^10.9.1",
+    "tsx": "^4.2.0",
     "typescript": "^5.0.4",
     "vitest": "^0.32.2"
   }

@@ -5,10 +5,17 @@ import {
   updateListEntity,
 } from "./listEntities.model.js";
 import { IdList } from "../../../types/IdList.js";
+import { FormatedQuery } from "../../../types/QueryTypes.js";
 
-export const findAll = async (): Promise<ListEntityDB[]> => {
+export const findAll = async ({
+  limit,
+  offset,
+  deep,
+}: FormatedQuery): Promise<ListEntityDB[]> => {
   const foundListEntites = await ListEntities.findMany({
-    include: { pokemon: true, list: true, forms: true },
+    take: limit,
+    skip: offset,
+    include: { pokemon: deep, list: deep, form: deep },
   });
   return foundListEntites;
 };
@@ -16,7 +23,7 @@ export const findAll = async (): Promise<ListEntityDB[]> => {
 export const create = async (
   newListEntity: ListEntity,
 ): Promise<ListEntityDB> => {
-  const { list, pokemon, forms, ...props } = newListEntity;
+  const { list, pokemon, form, ...props } = newListEntity;
 
   let connectedListEntity;
 
@@ -25,7 +32,7 @@ export const create = async (
       ...props,
       list: { connect: { id: list.id } },
     },
-    include: { pokemon: true, list: true, forms: true },
+    include: { pokemon: true, list: true, form: true },
   });
 
   if (pokemon) {
@@ -34,21 +41,17 @@ export const create = async (
       data: {
         pokemon: { connect: { id: pokemon.id } },
       },
-      include: { pokemon: true, list: true, forms: true },
+      include: { pokemon: true, list: true, form: true },
     });
   }
 
-  if (forms) {
-    const formIds = forms.map((form) => {
-      return { id: form.id };
-    });
-
+  if (form) {
     connectedListEntity = await ListEntities.update({
       where: { id: createdListEntity.id },
       data: {
-        forms: { connect: formIds },
+        form: { connect: { id: form.id } },
       },
-      include: { pokemon: true, list: true, forms: true },
+      include: { pokemon: true, list: true, form: true },
     });
   }
   if (connectedListEntity) {
@@ -61,7 +64,7 @@ export const create = async (
 export const findOne = async (listEntityId: number): Promise<ListEntityDB> => {
   const foundListEntity = await ListEntities.findUniqueOrThrow({
     where: { id: listEntityId },
-    include: { pokemon: true, list: true, forms: true },
+    include: { pokemon: true, list: true, form: true },
   });
   return foundListEntity;
 };
@@ -70,14 +73,14 @@ export const update = async (
   listEntityId: number,
   newListEntity: updateListEntity,
 ): Promise<ListEntityDB> => {
-  const { list, pokemon, forms, ...props } = newListEntity;
+  const { list, pokemon, form, ...props } = newListEntity;
 
   let updatedPokemonForm;
 
   updatedPokemonForm = await ListEntities.update({
     where: { id: listEntityId },
     data: props,
-    include: { pokemon: true, list: true, forms: true },
+    include: { pokemon: true, list: true, form: true },
   });
 
   if (list) {
@@ -86,7 +89,7 @@ export const update = async (
       data: {
         list: { connect: { id: list.id } },
       },
-      include: { pokemon: true, list: true, forms: true },
+      include: { pokemon: true, list: true, form: true },
     });
   }
 
@@ -96,21 +99,17 @@ export const update = async (
       data: {
         pokemon: { connect: { id: pokemon.id } },
       },
-      include: { pokemon: true, list: true, forms: true },
+      include: { pokemon: true, list: true, form: true },
     });
   }
 
-  if (forms) {
-    const formIds = forms.map((form) => {
-      return { id: form.id };
-    });
-
+  if (form) {
     updatedPokemonForm = await ListEntities.update({
       where: { id: listEntityId },
       data: {
-        forms: { connect: formIds },
+        form: { connect: { id: form.id } },
       },
-      include: { pokemon: true, list: true, forms: true },
+      include: { pokemon: true, list: true, form: true },
     });
   }
 
@@ -122,7 +121,7 @@ export const deleteOne = async (
 ): Promise<ListEntityDB> => {
   const deletedListEntity = await ListEntities.delete({
     where: { id: listEntityId },
-    include: { pokemon: true, list: true, forms: true },
+    include: { pokemon: true, list: true, form: true },
   });
   return deletedListEntity;
 };

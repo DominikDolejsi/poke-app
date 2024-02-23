@@ -19,6 +19,7 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime? @updatedAt
   refreshToken String?   @unique
+  emailToken   String?   @unique
   lists        List[]
 }
 
@@ -34,48 +35,59 @@ model List {
 }
 
 model ListEntity {
-  id            Int           @id @default(autoincrement())
-  list          List          @relation(fields: [listId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  listId        Int
-  pokemon       Pokemon?      @relation(fields: [pokemonId], references: [id])
-  pokemonId     Int?
-  forms         PokemonForm[]
-  pokemonGender Boolean?
-  formGender    Boolean?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime?     @updatedAt
+  id        Int          @id @default(autoincrement())
+  list      List         @relation(fields: [listId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  listId    Int
+  pokemon   Pokemon?     @relation(fields: [pokemonId], references: [id])
+  pokemonId Int?
+  form      PokemonForm? @relation(fields: [formId], references: [id])
+  formId    Int?
+  gender    Boolean?
+  shiny     Boolean?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime?    @updatedAt
 }
 
 model Pokemon {
-  id                 Int           @id @default(autoincrement())
-  name               String
-  species            String
-  gender             Boolean
-  nationalNumber     Int           @unique
-  firstType          PokemonType   @relation(fields: [firstTypeId], references: [id], name: "first")
-  firstTypeId        Int
-  secondType         PokemonType?  @relation(fields: [secondTypeId], references: [id], name: "second")
-  secondTypeId       Int?
-  generation         Int
-  health             Int
-  speed              Int
-  attack             Int
-  defence            Int
-  specialAttack      Int
-  specialDefence     Int
-  artworkSprite      String?
-  artworkSpriteShiny String?
-  homeMale           String?
-  homeFemale         String?
-  homeMaleShiny      String?
-  homeFemaleShiny    String?
-  nextEvolution      String?
-  previousEvolution  String?
-  forms              PokemonForm[]
-  games              Game[]
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime?     @updatedAt
-  listEntities       ListEntity[]
+  id                   Int           @id @default(autoincrement())
+  name                 String
+  formName             String?
+  formTypes            FormType[]
+  species              String
+  gender               Boolean
+  nationalIndex        Int           @unique
+  firstType            PokemonType   @relation(fields: [firstTypeId], references: [id], name: "first")
+  firstTypeId          Int
+  secondType           PokemonType?  @relation(fields: [secondTypeId], references: [id], name: "second")
+  secondTypeId         Int?
+  generation           Int
+  health               Int
+  speed                Int
+  attack               Int
+  defense              Int
+  specialAttack        Int
+  specialDefense       Int
+  femaleHealth         Int?
+  femaleSpeed          Int?
+  femaleAttack         Int?
+  femaleDefense        Int?
+  femaleSpecialAttack  Int?
+  femaleSpecialDefense Int?
+  artworkMale          String?
+  artworkFemale        String?
+  artworkMaleShiny     String?
+  artworkFemaleShiny   String?
+  homeMale             String?
+  homeFemale           String?
+  homeMaleShiny        String?
+  homeFemaleShiny      String?
+  nextEvolution        String?
+  previousEvolution    String?
+  forms                PokemonForm[]
+  games                Game[]
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime?     @updatedAt
+  listEntities         ListEntity[]
 }
 
 model PokemonForm {
@@ -83,11 +95,8 @@ model PokemonForm {
   pokemon            Pokemon      @relation(fields: [pokemonId], references: [id])
   pokemonId          Int
   name               String
-  formType           FormType?    @relation(fields: [formTypeId], references: [id])
-  formTypeId         Int
-  species            String?
-  gender             Boolean?
-  firstType          PokemonType?  @relation(fields: [firstTypeId], references: [id], name: "formFirst")
+  formTypes          FormType[]
+  firstType          PokemonType? @relation(fields: [firstTypeId], references: [id], name: "formFirst")
   firstTypeId        Int
   secondType         PokemonType? @relation(fields: [secondTypeId], references: [id], name: "formSecond")
   secondTypeId       Int?
@@ -95,11 +104,13 @@ model PokemonForm {
   health             Int?
   speed              Int?
   attack             Int?
-  defence            Int?
+  defense            Int?
   specialAttack      Int?
-  specialDefence     Int?
-  artworkSprite      String?
-  artworkSpriteShiny String?
+  specialDefense     Int?
+  artworkMale        String?
+  artworkFemale      String?
+  artworkMaleShiny   String?
+  artworkFemaleShiny String?
   homeMale           String?
   homeFemale         String?
   homeMaleShiny      String?
@@ -118,9 +129,10 @@ model Game {
 }
 
 model FormType {
-  id    Int           @id @default(autoincrement())
-  name  String        @unique
-  forms PokemonForm[]
+  id       Int           @id @default(autoincrement())
+  name     String        @unique
+  forms    PokemonForm[]
+  pokemons Pokemon[]
 }
 
 model PokemonType {
@@ -136,4 +148,17 @@ model PokemonType {
   secondSlotPokemon Pokemon[]     @relation("second")
   firstSlotForm     PokemonForm[] @relation("formFirst")
   secondSlotForm    PokemonForm[] @relation("formSecond")
+}
+
+enum FormTypeName {
+  Alola
+  Paldea
+  Hisui
+  Galar
+  Mega
+  Gigantamax
+  Weather
+  Primal
+  Deoxys
+  Cloak
 }

@@ -1,4 +1,4 @@
-import { getAllQuery } from "../../../types/queryTypes.js";
+import { FormatedQuery } from "../../../types/QueryTypes.js";
 import {
   Pokemons,
   PokemonDB,
@@ -6,25 +6,36 @@ import {
   updatePokemon,
 } from "./pokemons.model.js";
 
-export const findAll = async (queries: getAllQuery): Promise<PokemonDB[]> => {
-  const isDeep = queries.deep === "true" ? true : false;
-
+export const findAll = async ({
+  limit,
+  offset,
+  deep,
+}: FormatedQuery): Promise<PokemonDB[]> => {
   const foundPokemons = await Pokemons.findMany({
-    take: Number.parseInt(queries.limit) ? Number.parseInt(queries.limit) : 20,
-    skip: Number.parseInt(queries.offset) ? Number.parseInt(queries.offset) : 0,
+    take: limit,
+    skip: offset,
     include: {
-      firstType: isDeep,
-      secondType: isDeep,
-      forms: isDeep,
-      games: isDeep,
-      listEntities: isDeep,
+      firstType: deep,
+      secondType: deep,
+      forms: deep,
+      games: deep,
+      listEntities: deep,
     },
   });
   return foundPokemons;
 };
 
 export const create = async (newPokemon: Pokemon): Promise<PokemonDB> => {
-  const { games, firstType, secondType, forms, ...rest } = newPokemon;
+  const { games, firstType, secondType, forms, formTypes, ...rest } = newPokemon;
+
+  const include = {
+    firstType: true,
+    secondType: true,
+    forms: true,
+    games: true,
+    listEntities: true,
+    formTypes: true,
+  }
 
   let updatedPokemon;
 
@@ -33,28 +44,30 @@ export const create = async (newPokemon: Pokemon): Promise<PokemonDB> => {
       ...rest,
       firstType: { connect: { id: firstType.id } },
     },
-    include: {
-      firstType: true,
-      secondType: true,
-      forms: true,
-      games: true,
-      listEntities: true,
-    },
+    include,
   });
 
   if (secondType) {
-    updatedPokemon = Pokemons.update({
+    updatedPokemon = await Pokemons.update({
       where: { id: createdPokemon.id },
       data: {
         secondType: { connect: { id: secondType.id } },
       },
-      include: {
-        firstType: true,
-        secondType: true,
-        forms: true,
-        games: true,
-        listEntities: true,
+      include,
+    });
+  }
+
+  if (formTypes) {
+    const formTypeIds = formTypes.map((formType) => {
+      return { id: formType.id };
+    });
+
+    updatedPokemon = await Pokemons.update({
+      where: { id: createdPokemon.id },
+      data: {
+        formTypes: { connect: formTypeIds },
       },
+      include,
     });
   }
 
@@ -68,13 +81,7 @@ export const create = async (newPokemon: Pokemon): Promise<PokemonDB> => {
       data: {
         games: { connect: gameIds },
       },
-      include: {
-        firstType: true,
-        secondType: true,
-        forms: true,
-        games: true,
-        listEntities: true,
-      },
+      include,
     });
   }
 
@@ -83,18 +90,12 @@ export const create = async (newPokemon: Pokemon): Promise<PokemonDB> => {
       return { id: form.id };
     });
 
-    updatedPokemon = Pokemons.update({
+    updatedPokemon = await Pokemons.update({
       where: { id: createdPokemon.id },
       data: {
         games: { connect: formIds },
       },
-      include: {
-        firstType: true,
-        secondType: true,
-        forms: true,
-        games: true,
-        listEntities: true,
-      },
+      include,
     });
   }
 
@@ -103,9 +104,12 @@ export const create = async (newPokemon: Pokemon): Promise<PokemonDB> => {
   return createdPokemon;
 };
 
-export const findOne = async (pokemonId: number): Promise<PokemonDB> => {
+export const findOne = async (
+  uniqueValue: number,
+  { id }: FormatedQuery,
+): Promise<PokemonDB> => {
   const foundPokemon = await Pokemons.findUniqueOrThrow({
-    where: { id: pokemonId },
+    where: id ? { id: uniqueValue } : { nationalIndex: uniqueValue },
     include: {
       firstType: true,
       secondType: true,
@@ -121,9 +125,18 @@ export const update = async (
   pokemonId: number,
   newPokemon: updatePokemon,
 ): Promise<PokemonDB> => {
-  const { games, firstType, secondType, forms, ...rest } = newPokemon;
+  const { games, firstType, secondType, forms, formTypes, ...rest } = newPokemon;
 
-  let updatedPokemon;
+  const include = {
+    firstType: true,
+    secondType: true,
+    forms: true,
+    games: true,
+    listEntities: true,
+    formTypes: true,
+  }
+
+  let updatedPokemon: PokemonDB;
 
   updatedPokemon = await Pokemons.update({
     where: { id: pokemonId },
@@ -138,7 +151,7 @@ export const update = async (
   });
 
   if (firstType) {
-    updatedPokemon = Pokemons.update({
+    updatedPokemon = await Pokemons.update({
       where: { id: pokemonId },
       data: {
         firstType: { connect: { id: firstType.id } },
@@ -154,7 +167,7 @@ export const update = async (
   }
 
   if (secondType) {
-    updatedPokemon = Pokemons.update({
+    updatedPokemon = await Pokemons.update({
       where: { id: pokemonId },
       data: {
         secondType: { connect: { id: secondType.id } },
@@ -169,23 +182,31 @@ export const update = async (
     });
   }
 
+  if (formTypes) {
+    const formTypeIds = formTypes.map((formType) => {
+      return { id: formType.id };
+    });
+
+    updatedPokemon = await Pokemons.update({
+      where: { id: pokemonId },
+      data: {
+        formTypes: { connect: formTypeIds },
+      },
+      include,
+    });
+  }
+
   if (games) {
     const gameIds = games.map((game) => {
       return { id: game.id };
     });
 
-    updatedPokemon = Pokemons.update({
+    updatedPokemon = await Pokemons.update({
       where: { id: pokemonId },
       data: {
         games: { set: gameIds },
       },
-      include: {
-        firstType: true,
-        secondType: true,
-        forms: true,
-        games: true,
-        listEntities: true,
-      },
+      include,
     });
   }
 
@@ -194,18 +215,12 @@ export const update = async (
       return { id: form.id };
     });
 
-    updatedPokemon = Pokemons.update({
+    updatedPokemon = await Pokemons.update({
       where: { id: pokemonId },
       data: {
         games: { set: formIds },
       },
-      include: {
-        firstType: true,
-        secondType: true,
-        forms: true,
-        games: true,
-        listEntities: true,
-      },
+      include,
     });
   }
 
@@ -224,20 +239,4 @@ export const deleteOne = async (pokemonId: number): Promise<PokemonDB> => {
     },
   });
   return deletedPokemon;
-};
-
-export const findOneByNationalNumber = async (
-  pokemonNationalNumber: number,
-): Promise<PokemonDB> => {
-  const foundPokemon = await Pokemons.findUniqueOrThrow({
-    where: { nationalNumber: pokemonNationalNumber },
-    include: {
-      firstType: true,
-      secondType: true,
-      forms: true,
-      games: true,
-      listEntities: true,
-    },
-  });
-  return foundPokemon;
 };

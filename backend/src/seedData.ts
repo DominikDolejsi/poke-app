@@ -1,4 +1,4 @@
-import { Pokemon } from "./api/v1/pokemons/pokemons.model.js";
+import { Pokemon, Pokemons } from "./api/v1/pokemons/pokemons.model.js";
 import {
   PokemonPokemon,
   PokemonSpecies,
@@ -67,13 +67,13 @@ const seedDBWithPokemon = async () => {
       const pokemonName = speciesData.name;
       const pokemonSpecies = findGeneraName(speciesData.genera);
       const pokemonGender = genderRateToGender(speciesData.gender_rate);
-      const pokemonNationalNumber = findNationalIndex(
+      const pokemonNationalIndex = findNationalIndex(
         speciesData.pokedex_numbers,
       );
       const pokemonGeneration = resolveGeneration(speciesData.generation);
       const pokemonStats = formatStats(pokemonData.stats);
       const pokemonTypes = resolveTypes(pokemonData.types, typesDB);
-      const pokemonSprites = resolveSprites(pokemonData.sprites.other);
+      const pokemonSprites = resolveSprites(pokemonData.sprites);
       const pokemonNextEvoluution = formatToIndexString(nextEvolution);
       const pokemonPreviousEvoluution = formatToIndexString(previousEvolution);
 
@@ -94,16 +94,18 @@ const seedDBWithPokemon = async () => {
         name: pokemonName,
         species: pokemonSpecies,
         gender: pokemonGender,
-        nationalNumber: pokemonNationalNumber,
+        nationalIndex: pokemonNationalIndex,
         generation: pokemonGeneration,
         health: pokemonStats.health,
         speed: pokemonStats.speed,
         attack: pokemonStats.attack,
-        defence: pokemonStats.defence,
+        defense: pokemonStats.defense,
         specialAttack: pokemonStats.specialAttack,
-        specialDefence: pokemonStats.specialDefence,
-        artworkSprite: pokemonSprites.artworkSprite,
-        artworkSpriteShiny: pokemonSprites.artworkSpriteShiny,
+        specialDefense: pokemonStats.specialDefense,
+        artworkMale: pokemonSprites.artworkSprite,
+        artworkFemale: pokemonSprites.artworkSpriteShiny,
+        artworkMaleShiny: pokemonSprites.artworkSpriteShiny,
+        artworkFemaleShiny: pokemonSprites.artworkSpriteShiny,
         homeMale: pokemonSprites.homeMale,
         homeFemale: pokemonSprites.homeFemale,
         homeMaleShiny: pokemonSprites.homeMaleShiny,
@@ -116,7 +118,7 @@ const seedDBWithPokemon = async () => {
 
       const strNewPokemon = JSON.stringify(newPokemon);
 
-      console.log(`Adding pokemon`);
+      console.log(`Adding pokemon ${newPokemon.name}`);
       console.dir(newPokemon, { depth: Infinity });
 
       const data = await writePokemonToDB(strNewPokemon);
@@ -135,9 +137,9 @@ const seedDBWithPokemon = async () => {
 
 seedDBWithPokemon();
 
-const fillDBWithPokemonTest = async () => {
+const fillDBWithPokemonForms = async () => {
   try {
-    let index = 32;
+    let index = 1;
     let isEndOfPokedex = false;
 
     const typesDB = await prepareDBTypes();
@@ -164,32 +166,56 @@ const fillDBWithPokemonTest = async () => {
 
       if (defaultVarietyUrl === null) return;
 
+      const originalPokemonData: PokemonPokemon = await advancedFetch(
+        defaultVarietyUrl,
+      );
+
+      const DBPokemon = await Pokemons.findUnique({
+        where: {nationalIndex: findNationalIndex(speciesData.pokedex_numbers)}
+      })
+
+
+      speciesData.varieties
+      /// first filter it
+      const filteredForms = 
+
+
+
+      // for every one create form
+
+      const pokemonName = ;
+      const formType = ;
+
+      const pokemonStats = formatStats(pokemonData.stats);
+      const pokemonTypes = resolveTypes(pokemonData.types, typesDB);
+      const pokemonSprites = resolveSprites(pokemonData.sprites.other);
+
+    // There I need to go to speciesData.varietes and go through all the not deafult fields
+    // For every field I need to check artwork = Fetch!!
+    // for every field with artwork I need to fetch its pokemonData
+    // For every data I need to get its NAME, TYPES, STATS,
+    // Forget forms, they dont have big sprites only battle sprites
+    // Then assign sprites
+    // Lastly I need to create function for every "special" pokemon based on bulbapedia list
+    // and create a function for Form names !!!!!!!!!!!!
+
+
+      speciesData.varieties.forEach((variety: variety) => {
+        if (variety.is_default === true) {
+          defaultVarietyUrl = variety.pokemon.url;
+        }
+      });
+
+      if (defaultVarietyUrl === null) return;
+
       const pokemonData: PokemonPokemon = await advancedFetch(
         defaultVarietyUrl,
       );
 
-      const previousEvolution = await returnEvolvedFrom(speciesData);
-
-      let nextEvolution = null;
-
-      if (speciesData.evolution_chain) {
-        nextEvolution = await resolveEvolvedTo(speciesData);
-      }
 
       // ---------- There comes the databse part -------------
 
       const pokemonName = speciesData.name;
-      const pokemonSpecies = findGeneraName(speciesData.genera);
-      const pokemonGender = genderRateToGender(speciesData.gender_rate);
-      const pokemonNationalNumber = findNationalIndex(
-        speciesData.pokedex_numbers,
-      );
-      const pokemonGeneration = resolveGeneration(speciesData.generation);
-      const pokemonStats = formatStats(pokemonData.stats);
-      const pokemonTypes = resolveTypes(pokemonData.types, typesDB);
-      const pokemonSprites = resolveSprites(pokemonData.sprites.other);
-      const pokemonNextEvoluution = formatToIndexString(nextEvolution);
-      const pokemonPreviousEvoluution = formatToIndexString(previousEvolution);
 
       if (pokemonSpecies === null) {
         console.log("species is null");
@@ -208,14 +234,14 @@ const fillDBWithPokemonTest = async () => {
         name: pokemonName,
         species: pokemonSpecies,
         gender: pokemonGender,
-        nationalNumber: pokemonNationalNumber,
+        nationalIndex: pokemonNationalIndex,
         generation: pokemonGeneration,
         health: pokemonStats.health,
         speed: pokemonStats.speed,
         attack: pokemonStats.attack,
-        defence: pokemonStats.defence,
+        defense: pokemonStats.defense,
         specialAttack: pokemonStats.specialAttack,
-        specialDefence: pokemonStats.specialDefence,
+        specialDefense: pokemonStats.specialDefense,
         artworkSprite: pokemonSprites.artworkSprite,
         artworkSpriteShiny: pokemonSprites.artworkSpriteShiny,
         homeMale: pokemonSprites.homeMale,
