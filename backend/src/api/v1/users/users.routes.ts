@@ -3,7 +3,7 @@ import * as usersController from "./users.controllers.js";
 
 import { validateRequest, hashPassword} from "../../../middlewares.js";
 import { User, updateUser } from "./users.model.js";
-import { ParamsWithUuid } from "../../../types/paramsWithId.js";
+import { paramsWithUuid } from "../../../types/paramsWithId.js";
 
 const router = Router();
 
@@ -14,14 +14,14 @@ router
 
 router
   .route("/:id")
-  .get(validateRequest({ params: ParamsWithUuid }), usersController.getOne)
+  .get(validateRequest({ params: paramsWithUuid }), usersController.getOne)
   .patch(
-    validateRequest({ params: ParamsWithUuid, body: updateUser }),
+    validateRequest({ params: paramsWithUuid, body: updateUser }),
     hashPassword,
     usersController.update,
   )
   .delete(
-    validateRequest({ params: ParamsWithUuid }),
+    validateRequest({ params: paramsWithUuid }),
     usersController.deleteOne,
   );
 

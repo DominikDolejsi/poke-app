@@ -3,7 +3,7 @@ import * as pokemonTypesController from "./pokemonTypes.controllers.js";
 
 import { validateRequest } from "../../../middlewares.js";
 import { PokemonType, updatePokemonType } from "./pokemonTypes.model.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
 
 const router = Router();
 
@@ -14,13 +14,13 @@ router
 
 router
   .route("/:id")
-  .get(validateRequest({ params: ParamsWithId }), pokemonTypesController.getOne)
+  .get(validateRequest({ params: paramsWithId }), pokemonTypesController.getOne)
   .patch(
-    validateRequest({ params: ParamsWithId, body: updatePokemonType }),
+    validateRequest({ params: paramsWithId, body: updatePokemonType }),
     pokemonTypesController.update,
   )
   .delete(
-    validateRequest({ params: ParamsWithId }),
+    validateRequest({ params: paramsWithId }),
     pokemonTypesController.deleteOne,
   );
 

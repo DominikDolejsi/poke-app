@@ -2,7 +2,7 @@ import { z } from "zod";
 import { prisma } from "../../../db.js";
 import { isArrayinString } from "../../../utils/fieldFormater.js";
 
-export const Pokemon = z.object({
+export const pokemon = z.object({
   name: z.string().min(1),
   formName: z.nullable(z.string().min(1)).optional(),
   species: z.string().min(1),
@@ -38,16 +38,16 @@ export const Pokemon = z.object({
   forms: z.object({ id: z.number().int() }).array().optional(),
 });
 
-export const PokemonDB = Pokemon.extend({
+export const pokemonDB = pokemon.extend({
   id: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.nullable(z.date()),
   listEntities: z.object({ id: z.number().int() }).array(),
 });
 
-export const updatePokemon = Pokemon.partial();
+export const updatePokemon = pokemon.partial();
 
-export type Pokemon = z.infer<typeof Pokemon>;
-export type PokemonDB = z.infer<typeof PokemonDB>;
-export type updatePokemon = z.infer<typeof updatePokemon>;
+export type Pokemon = z.infer<typeof pokemon>;
+export type PokemonDB = z.infer<typeof pokemonDB>;
+export type UpdatePokemon = z.infer<typeof updatePokemon>;
 export const Pokemons = prisma.pokemon;

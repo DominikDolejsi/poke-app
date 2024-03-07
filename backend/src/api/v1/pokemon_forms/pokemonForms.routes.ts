@@ -3,7 +3,7 @@ import * as pokemonFormsController from "./pokemonForms.controllers.js";
 
 import { validateRequest } from "../../../middlewares.js";
 import { PokemonForm, updatePokemonForm } from "./pokemonForms.model.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
 
 const router = Router();
 
@@ -14,13 +14,13 @@ router
 
 router
   .route("/:id")
-  .get(validateRequest({ params: ParamsWithId }), pokemonFormsController.getOne)
+  .get(validateRequest({ params: paramsWithId }), pokemonFormsController.getOne)
   .patch(
-    validateRequest({ params: ParamsWithId, body: updatePokemonForm }),
+    validateRequest({ params: paramsWithId, body: updatePokemonForm }),
     pokemonFormsController.update,
   )
   .delete(
-    validateRequest({ params: ParamsWithId }),
+    validateRequest({ params: paramsWithId }),
     pokemonFormsController.deleteOne,
   );
 

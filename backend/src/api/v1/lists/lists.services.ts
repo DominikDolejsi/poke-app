@@ -1,5 +1,5 @@
-import { IdList } from "../../../types/IdList.js";
-import { FormatedQuery } from "../../../types/QueryTypes.js";
+import { IdList } from "../../../types/idList.js";
+import { FormatedQuery } from "../../../types/queryTypes.js";
 import { Lists, ListDB, List, updateList } from "./lists.model.js";
 
 export const findAll = async ({

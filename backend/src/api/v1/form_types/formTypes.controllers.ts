@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { FormType, FormTypeDB, updateFormType } from "./formTypes.model.js";
 import * as formTypesServices from "./formTypes.services.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
 
 export const getAll = async (
   req: Request,

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Game, GameDB, updateGame } from "./games.model.js";
 import * as gamesServices from "./games.services.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
 
 export const getAll = async (
   req: Request,

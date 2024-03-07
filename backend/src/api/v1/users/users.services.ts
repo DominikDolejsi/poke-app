@@ -1,4 +1,4 @@
-import { FormatedQuery } from "../../../types/QueryTypes.js";
+import { FormatedQuery } from "../../../types/queryTypes.js";
 import { Users, UserDB, User, updateUser } from "./users.model.js";
 
 export const findAll = async ({

@@ -5,9 +5,9 @@ import {
   updatePokemonType,
 } from "./pokemonTypes.model.js";
 import * as pokemonTypesServices from "./pokemonTypes.services.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
-import { EmptyParams, EmptyBody } from "../../../types/ExpressTypes.js";
-import { ReqQuery } from "../../../types/QueryTypes.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
+import { EmptyParams, EmptyBody } from "../../../types/expressTypes.js";
+import { ReqQuery } from "../../../types/queryTypes.js";
 import { queryFormater } from "../../../utils/queryFormater.js";
 
 export const getAll = async (

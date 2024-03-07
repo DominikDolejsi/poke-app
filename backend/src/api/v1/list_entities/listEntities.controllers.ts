@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { ListEntity, ListEntityDB } from "./listEntities.model.js";
 import * as listEntitiesServices from "./listEntities.services.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
-import { IdList } from "../../../types/IdList.js";
-import { EmptyParams, EmptyBody } from "../../../types/ExpressTypes.js";
-import { ReqQuery } from "../../../types/QueryTypes.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
+import { IdList } from "../../../types/idList.js";
+import { EmptyParams, EmptyBody } from "../../../types/expressTypes.js";
+import { ReqQuery } from "../../../types/queryTypes.js";
 import { queryFormater } from "../../../utils/queryFormater.js";
 
 export const getAll = async (

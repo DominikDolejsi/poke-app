@@ -3,7 +3,7 @@ import * as gamesController from "./games.controllers.js";
 
 import { validateRequest } from "../../../middlewares.js";
 import { Game } from "./games.model.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
 
 const router = Router();
 
@@ -14,11 +14,11 @@ router
 
 router
   .route("/:id")
-  .get(validateRequest({ params: ParamsWithId }), gamesController.getOne)
+  .get(validateRequest({ params: paramsWithId }), gamesController.getOne)
   .patch(
-    validateRequest({ params: ParamsWithId, body: Game }),
+    validateRequest({ params: paramsWithId, body: Game }),
     gamesController.update,
   )
-  .delete(validateRequest({ params: ParamsWithId }), gamesController.deleteOne);
+  .delete(validateRequest({ params: paramsWithId }), gamesController.deleteOne);
 
 export default router;

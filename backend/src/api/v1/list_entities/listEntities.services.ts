@@ -4,8 +4,8 @@ import {
   ListEntity,
   updateListEntity,
 } from "./listEntities.model.js";
-import { IdList } from "../../../types/IdList.js";
-import { FormatedQuery } from "../../../types/QueryTypes.js";
+import { IdList } from "../../../types/idList.js";
+import { FormatedQuery } from "../../../types/queryTypes.js";
 
 export const findAll = async ({
   limit,

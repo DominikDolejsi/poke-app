@@ -3,8 +3,8 @@ import * as listEntitiesController from "./listEntities.controllers.js";
 
 import { validateRequest } from "../../../middlewares.js";
 import { ListEntity, updateListEntity } from "./listEntities.model.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
-import { IdList } from "../../../types/IdList.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
+import { IdList } from "../../../types/idList.js";
 
 const router = Router();
 
@@ -16,11 +16,11 @@ router
 
 router
   .route("/:id")
-  .get(validateRequest({ params: ParamsWithId }), listEntitiesController.getOne)
+  .get(validateRequest({ params: paramsWithId }), listEntitiesController.getOne)
   .patch(
-    validateRequest({ params: ParamsWithId, body: updateListEntity }),
+    validateRequest({ params: paramsWithId, body: updateListEntity }),
     listEntitiesController.update,
   )
-  .delete(validateRequest({ params: ParamsWithId }), listEntitiesController.deleteOne);
+  .delete(validateRequest({ params: paramsWithId }), listEntitiesController.deleteOne);
 
 export default router;

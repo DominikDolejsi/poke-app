@@ -3,8 +3,8 @@ import * as listsController from "./lists.controllers.js";
 
 import { validateRequest } from "../../../middlewares.js";
 import { List, updateList } from "./lists.model.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
-import { IdList } from "../../../types/IdList.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
+import { IdList } from "../../../types/idList.js";
 
 const router = Router();
 
@@ -16,11 +16,11 @@ router
 
 router
   .route("/:id")
-  .get(validateRequest({ params: ParamsWithId }), listsController.getOne)
+  .get(validateRequest({ params: paramsWithId }), listsController.getOne)
   .patch(
-    validateRequest({ params: ParamsWithId, body: updateList }),
+    validateRequest({ params: paramsWithId, body: updateList }),
     listsController.update,
   )
-  .delete(validateRequest({ params: ParamsWithId }), listsController.deleteOne);
+  .delete(validateRequest({ params: paramsWithId }), listsController.deleteOne);
 
 export default router;

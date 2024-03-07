@@ -3,7 +3,7 @@ import * as formTypesController from "./formTypes.controllers.js";
 
 import { validateRequest } from "../../../middlewares.js";
 import { FormType, updateFormType } from "./formTypes.model.js";
-import { ParamsWithId } from "../../../types/paramsWithId.js";
+import { paramsWithId } from "../../../types/paramsWithId.js";
 
 const router = Router();
 
@@ -14,13 +14,13 @@ router
 
 router
   .route("/:id")
-  .get(validateRequest({ params: ParamsWithId }), formTypesController.getOne)
+  .get(validateRequest({ params: paramsWithId }), formTypesController.getOne)
   .patch(
-    validateRequest({ params: ParamsWithId, body: updateFormType }),
+    validateRequest({ params: paramsWithId, body: updateFormType }),
     formTypesController.update,
   )
   .delete(
-    validateRequest({ params: ParamsWithId }),
+    validateRequest({ params: paramsWithId }),
     formTypesController.deleteOne,
   );
 

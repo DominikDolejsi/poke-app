@@ -1,4 +1,4 @@
-import { Pokemon, Pokemons } from "./api/v1/pokemons/pokemons.model.js";
+import { pokemon, Pokemons } from "./api/v1/pokemons/pokemons.model.js";
 import {
   PokemonPokemon,
   PokemonSpecies,

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { User, UserDB } from "./users.model.js";
 import * as usersServices from "./users.services.js";
-import { ParamsWithUuid } from "../../../types/paramsWithId.js";
-import { EmptyParams, EmptyBody } from "../../../types/ExpressTypes.js";
-import { ReqQuery } from "../../../types/QueryTypes.js";
+import { paramsWithUuid } from "../../../types/paramsWithId.js";
+import { EmptyParams, EmptyBody } from "../../../types/expressTypes.js";
+import { ReqQuery } from "../../../types/queryTypes.js";
 import { queryFormater } from "../../../utils/queryFormater.js";
 
 export const getAll = async (
