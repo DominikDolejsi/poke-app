@@ -1,20 +1,30 @@
 import { Request, Response, NextFunction } from "express";
-import { List, ListDB } from "./lists.model.js";
+import { list, listDB, updateList } from "./lists.model.js";
 import * as listsServices from "./lists.services.js";
 import { paramsWithId } from "../../../types/paramsWithId.js";
 import { IdList } from "../../../types/idList.js";
 import { EmptyParams, EmptyBody } from "../../../types/expressTypes.js";
 import { ReqQuery } from "../../../types/queryTypes.js";
 import { queryFormater } from "../../../utils/queryFormater.js";
+import { zParse } from "../../../utils/zParse.js";
+import {
+  createSchema,
+  deleteManySchema,
+  deleteSchema,
+  getAllSchema,
+  getOneSchema,
+  updateSchema,
+} from "../../../types/reqSchemaTypes.js";
 
 export const getAll = async (
-  req: Request<EmptyParams, EmptyBody, EmptyBody, ReqQuery>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const reqQuery = queryFormater(req.query);
-    const foundLists = await listsServices.findAll(reqQuery);
+    const { query } = await zParse(getAllSchema, req);
+    const foundLists = await listsServices.findAll(query);
+
     res.status(200).json(foundLists);
   } catch (error) {
     next(error);
@@ -22,12 +32,17 @@ export const getAll = async (
 };
 
 export const create = async (
-  req: Request<Record<string, never>, ListDB, List>,
-  res: Response<ListDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const createdList = await listsServices.create(req.body);
+    const { query, body } = await zParse(
+      createSchema.extend({ body: list }),
+      req,
+    );
+    const createdList = await listsServices.create(body, query.deep);
+
     res.status(201).json(createdList);
   } catch (error) {
     next(error);
@@ -35,12 +50,14 @@ export const create = async (
 };
 
 export const getOne = async (
-  req: Request<ParamsWithId, ListDB>,
-  res: Response<ListDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const foundList = await listsServices.findOne(Number(req.params.id));
+    const { params, query } = await zParse(getOneSchema, req);
+    const foundList = await listsServices.findOne(params.id, query.deep);
+
     res.status(200).json(foundList);
   } catch (error) {
     next(error);
@@ -48,15 +65,17 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, ListDB, List>,
-  res: Response<ListDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const updatedList = await listsServices.update(
-      Number(req.params.id),
-      req.body,
+    const { query, params, body } = await zParse(
+      updateSchema.extend({ body: updateList }),
+      req,
     );
+    const updatedList = await listsServices.update(params.id, query.deep, body);
+
     res.status(200).json(updatedList);
   } catch (error) {
     next(error);
@@ -64,12 +83,14 @@ export const update = async (
 };
 
 export const deleteOne = async (
-  req: Request<ParamsWithId>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const deletedList = await listsServices.deleteOne(Number(req.params.id));
+    const { query, params } = await zParse(deleteSchema, req);
+
+    const deletedList = await listsServices.deleteOne(params.id, query.deep);
     res.sendStatus(204);
   } catch (error) {
     next(error);
@@ -77,12 +98,17 @@ export const deleteOne = async (
 };
 
 export const deleteMany = async (
-  req: Request<Record<string, never>, Record<string, never>, IdList>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const deletedLists = await listsServices.deleteMany(req.body);
+    const { body } = await zParse(deleteManySchema, req);
+
+    const deletedLists = await listsServices.deleteMany(
+      body.ids,
+      body.deleteAll,
+    );
     res.sendStatus(204);
   } catch (error) {
     next(error);

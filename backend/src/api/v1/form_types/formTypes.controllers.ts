@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { FormType, FormTypeDB, updateFormType } from "./formTypes.model.js";
+import { formType, formTypeDB, UpdateFormType } from "./formTypes.model.js";
 import * as formTypesServices from "./formTypes.services.js";
 import { paramsWithId } from "../../../types/paramsWithId.js";
 
@@ -45,7 +45,7 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, FormTypeDB, updateFormType>,
+  req: Request<ParamsWithId, FormTypeDB, UpdateFormType>,
   res: Response<FormTypeDB>,
   next: NextFunction,
 ) => {

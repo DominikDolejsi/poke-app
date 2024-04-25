@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { User, UserDB } from "./users.model.js";
+import { user, userDB } from "./users.model.js";
 import * as usersServices from "./users.services.js";
 import { paramsWithUuid } from "../../../types/paramsWithId.js";
 import { EmptyParams, EmptyBody } from "../../../types/expressTypes.js";

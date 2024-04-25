@@ -1,16 +1,15 @@
-import { FormatedQuery } from "../../../types/queryTypes.js";
+import { ManyQuery } from "../../../types/queryTypes.js";
 import {
   PokemonTypes,
-  PokemonTypeDB,
+  UpdatePokemonType,
   PokemonType,
-  updatePokemonType,
 } from "./pokemonTypes.model.js";
 
 export const findAll = async ({
   limit,
   offset,
   deep,
-}: FormatedQuery): Promise<PokemonTypeDB[]> => {
+}: ManyQuery): Promise<typeof foundPokemonTypes> => {
   const foundPokemonTypes = await PokemonTypes.findMany({
     take: limit,
     skip: offset,
@@ -26,7 +25,8 @@ export const findAll = async ({
 
 export const create = async (
   newPokemonType: PokemonType,
-): Promise<PokemonTypeDB> => {
+  deep: boolean,
+): Promise<typeof createdPokemonType> => {
   const {
     firstSlotPokemon,
     secondSlotPokemon,
@@ -35,106 +35,60 @@ export const create = async (
     ...rest
   } = newPokemonType;
 
-  let updatedPokemonType;
-
   const createdPokemonType = await PokemonTypes.create({
-    data: rest,
+    data: {
+      ...rest,
+      firstSlotPokemon: firstSlotPokemon
+        ? {
+            connect: firstSlotPokemon.map((firstSlotPokemon) => ({
+              id: firstSlotPokemon.id,
+            })),
+          }
+        : undefined,
+      secondSlotPokemon: secondSlotPokemon
+        ? {
+            connect: secondSlotPokemon.map((secondSlotPokemon) => ({
+              id: secondSlotPokemon.id,
+            })),
+          }
+        : undefined,
+      firstSlotForm: firstSlotForm
+        ? {
+            connect: firstSlotForm.map((firstSlotForm) => ({
+              id: firstSlotForm.id,
+            })),
+          }
+        : undefined,
+      secondSlotForm: secondSlotForm
+        ? {
+            connect: secondSlotForm.map((secondSlotForm) => ({
+              id: secondSlotForm.id,
+            })),
+          }
+        : undefined,
+    },
     include: {
-      firstSlotPokemon: true,
-      secondSlotPokemon: true,
-      firstSlotForm: true,
-      secondSlotForm: true,
+      firstSlotPokemon: deep,
+      secondSlotPokemon: deep,
+      firstSlotForm: deep,
+      secondSlotForm: deep,
     },
   });
-
-  if (firstSlotPokemon) {
-    const firstSlotPokemonIds = firstSlotPokemon.map((firstSlotPokemon) => {
-      return { id: firstSlotPokemon.id };
-    });
-
-    updatedPokemonType = await PokemonTypes.update({
-      where: { id: createdPokemonType.id },
-      data: {
-        firstSlotPokemon: { connect: firstSlotPokemonIds },
-      },
-      include: {
-        firstSlotPokemon: true,
-        secondSlotPokemon: true,
-        firstSlotForm: true,
-        secondSlotForm: true,
-      },
-    });
-  }
-  if (secondSlotPokemon) {
-    const secondSlotPokemonIds = secondSlotPokemon.map((secondSlotPokemon) => {
-      return { id: secondSlotPokemon.id };
-    });
-
-    updatedPokemonType = await PokemonTypes.update({
-      where: { id: createdPokemonType.id },
-      data: {
-        secondSlotPokemon: { connect: secondSlotPokemonIds },
-      },
-      include: {
-        firstSlotPokemon: true,
-        secondSlotPokemon: true,
-        firstSlotForm: true,
-        secondSlotForm: true,
-      },
-    });
-  }
-  if (firstSlotForm) {
-    const firstSlotFormIds = firstSlotForm.map((firstSlotForm) => {
-      return { id: firstSlotForm.id };
-    });
-
-    updatedPokemonType = await PokemonTypes.update({
-      where: { id: createdPokemonType.id },
-      data: {
-        firstSlotForm: { connect: firstSlotFormIds },
-      },
-      include: {
-        firstSlotPokemon: true,
-        secondSlotPokemon: true,
-        firstSlotForm: true,
-        secondSlotForm: true,
-      },
-    });
-  }
-  if (secondSlotForm) {
-    const secondSlotFormIds = secondSlotForm.map((secondSlotForm) => {
-      return { id: secondSlotForm.id };
-    });
-
-    updatedPokemonType = await PokemonTypes.update({
-      where: { id: createdPokemonType.id },
-      data: {
-        secondSlotForm: { connect: secondSlotFormIds },
-      },
-      include: {
-        firstSlotPokemon: true,
-        secondSlotPokemon: true,
-        firstSlotForm: true,
-        secondSlotForm: true,
-      },
-    });
-  }
-
-  if (updatedPokemonType) return updatedPokemonType;
 
   return createdPokemonType;
 };
 
 export const findOne = async (
   pokemonTypeId: number,
-): Promise<PokemonTypeDB> => {
+  deep: boolean,
+): Promise<typeof foundPokemonType> => {
   const foundPokemonType = await PokemonTypes.findUniqueOrThrow({
     where: { id: pokemonTypeId },
     include: {
-      firstSlotPokemon: true,
-      secondSlotPokemon: true,
-      firstSlotForm: true,
-      secondSlotForm: true,
+      firstSlotPokemon: deep,
+      secondSlotPokemon: deep,
+      firstSlotForm: deep,
+      secondSlotForm: deep,
     },
   });
   return foundPokemonType;
@@ -142,8 +96,9 @@ export const findOne = async (
 
 export const update = async (
   pokemonTypeId: number,
-  newPokemonType: updatePokemonType,
-): Promise<PokemonTypeDB> => {
+  newPokemonType: UpdatePokemonType,
+  deep: boolean,
+): Promise<typeof updatedPokemonType> => {
   const {
     firstSlotPokemon,
     secondSlotPokemon,
@@ -152,105 +107,61 @@ export const update = async (
     ...rest
   } = newPokemonType;
 
-  let updatedPokemonType;
-
-  updatedPokemonType = await PokemonTypes.update({
+  const updatedPokemonType = await PokemonTypes.update({
     where: { id: pokemonTypeId },
-    data: rest,
+    data: {
+      ...rest,
+      firstSlotPokemon: firstSlotPokemon
+        ? {
+            connect: firstSlotPokemon.map((firstSlotPokemon) => ({
+              id: firstSlotPokemon.id,
+            })),
+          }
+        : undefined,
+      secondSlotPokemon: secondSlotPokemon
+        ? {
+            connect: secondSlotPokemon.map((secondSlotPokemon) => ({
+              id: secondSlotPokemon.id,
+            })),
+          }
+        : undefined,
+      firstSlotForm: firstSlotForm
+        ? {
+            connect: firstSlotForm.map((firstSlotForm) => ({
+              id: firstSlotForm.id,
+            })),
+          }
+        : undefined,
+      secondSlotForm: secondSlotForm
+        ? {
+            connect: secondSlotForm.map((secondSlotForm) => ({
+              id: secondSlotForm.id,
+            })),
+          }
+        : undefined,
+    },
     include: {
-      firstSlotPokemon: true,
-      secondSlotPokemon: true,
-      firstSlotForm: true,
-      secondSlotForm: true,
+      firstSlotPokemon: deep,
+      secondSlotPokemon: deep,
+      firstSlotForm: deep,
+      secondSlotForm: deep,
     },
   });
-
-  if (firstSlotPokemon) {
-    const firstSlotPokemonIds = firstSlotPokemon.map((firstSlotPokemon) => {
-      return { id: firstSlotPokemon.id };
-    });
-
-    updatedPokemonType = await PokemonTypes.update({
-      where: { id: updatedPokemonType.id },
-      data: {
-        firstSlotPokemon: { connect: firstSlotPokemonIds },
-      },
-      include: {
-        firstSlotPokemon: true,
-        secondSlotPokemon: true,
-        firstSlotForm: true,
-        secondSlotForm: true,
-      },
-    });
-  }
-  if (secondSlotPokemon) {
-    const secondSlotPokemonIds = secondSlotPokemon.map((secondSlotPokemon) => {
-      return { id: secondSlotPokemon.id };
-    });
-
-    updatedPokemonType = await PokemonTypes.update({
-      where: { id: updatedPokemonType.id },
-      data: {
-        secondSlotPokemon: { connect: secondSlotPokemonIds },
-      },
-      include: {
-        firstSlotPokemon: true,
-        secondSlotPokemon: true,
-        firstSlotForm: true,
-        secondSlotForm: true,
-      },
-    });
-  }
-  if (firstSlotForm) {
-    const firstSlotFormIds = firstSlotForm.map((firstSlotForm) => {
-      return { id: firstSlotForm.id };
-    });
-
-    updatedPokemonType = await PokemonTypes.update({
-      where: { id: updatedPokemonType.id },
-      data: {
-        firstSlotForm: { connect: firstSlotFormIds },
-      },
-      include: {
-        firstSlotPokemon: true,
-        secondSlotPokemon: true,
-        firstSlotForm: true,
-        secondSlotForm: true,
-      },
-    });
-  }
-  if (secondSlotForm) {
-    const secondSlotFormIds = secondSlotForm.map((secondSlotForm) => {
-      return { id: secondSlotForm.id };
-    });
-
-    updatedPokemonType = await PokemonTypes.update({
-      where: { id: updatedPokemonType.id },
-      data: {
-        secondSlotForm: { connect: secondSlotFormIds },
-      },
-      include: {
-        firstSlotPokemon: true,
-        secondSlotPokemon: true,
-        firstSlotForm: true,
-        secondSlotForm: true,
-      },
-    });
-  }
 
   return updatedPokemonType;
 };
 
 export const deleteOne = async (
   pokemonTypeId: number,
-): Promise<PokemonTypeDB> => {
+  deep: boolean,
+): Promise<typeof deletedPokemonType> => {
   const deletedPokemonType = await PokemonTypes.delete({
     where: { id: pokemonTypeId },
     include: {
-      firstSlotPokemon: true,
-      secondSlotPokemon: true,
-      firstSlotForm: true,
-      secondSlotForm: true,
+      firstSlotPokemon: deep,
+      secondSlotPokemon: deep,
+      firstSlotForm: deep,
+      secondSlotForm: deep,
     },
   });
   return deletedPokemonType;

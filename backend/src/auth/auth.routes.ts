@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { User } from "../api/v1/users/users.model.js";
+import { user } from "../api/v1/users/users.model.js";
 import { LoginCredentials } from "../types/loginCredentials.js";
 import { hashPassword, validateRequest } from "../middlewares.js";
 import * as authController from "./auth.controller.js";
@@ -9,7 +9,7 @@ const router = Router();
 
 router
   .route("/register")
-  .post(validateRequest({ body: User }), hashPassword, authController.register);
+  .post(validateRequest({ body: user }), hashPassword, authController.register);
 
 router
   .route("/login")

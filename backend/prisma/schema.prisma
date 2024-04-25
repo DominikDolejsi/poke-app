@@ -81,8 +81,9 @@ model Pokemon {
   homeFemale           String?
   homeMaleShiny        String?
   homeFemaleShiny      String?
-  nextEvolution        String?
-  previousEvolution    String?
+  previousEvolutionId  Int?
+  previousEvolution    Pokemon?      @relation("Evolution", fields: [previousEvolutionId], references: [id])
+  nextEvolution        Pokemon[]     @relation("Evolution")
   forms                PokemonForm[]
   games                Game[]
   createdAt            DateTime      @default(now())

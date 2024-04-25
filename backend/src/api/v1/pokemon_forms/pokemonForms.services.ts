@@ -1,16 +1,15 @@
-import { FormatedQuery } from "../../../types/queryTypes.js";
+import { ManyQuery } from "../../../types/queryTypes.js";
 import {
   PokemonForms,
+  UpdatePokemonForm,
   PokemonForm,
-  PokemonFormDB,
-  updatePokemonForm,
 } from "./pokemonForms.model.js";
 
 export const findAll = async ({
   limit,
   offset,
   deep,
-}: FormatedQuery): Promise<PokemonFormDB[]> => {
+}: ManyQuery): Promise<typeof foundPokemonForms> => {
   const foundPokemonForms = await PokemonForms.findMany({
     take: limit,
     skip: offset,
@@ -20,6 +19,7 @@ export const findAll = async ({
       pokemon: deep,
       games: deep,
       listEntities: deep,
+      formTypes: deep,
     },
   });
   return foundPokemonForms;
@@ -27,114 +27,50 @@ export const findAll = async ({
 
 export const create = async (
   newPokemonForm: PokemonForm,
-): Promise<PokemonFormDB> => {
-  const { pokemon, firstType, secondType, formTypes, games, ...props } =
+  deep: boolean,
+): Promise<typeof createdPokemonForm> => {
+  const { pokemon, firstType, secondType, formTypes, games, ...rest } =
     newPokemonForm;
-
-  let updatedPokemonForm;
 
   const createdPokemonForm = await PokemonForms.create({
     data: {
-      ...props,
+      ...rest,
       pokemon: { connect: { id: pokemon.id } },
+      firstType: firstType ? { connect: { id: firstType.id } } : undefined,
+      secondType: secondType ? { connect: { id: secondType.id } } : undefined,
+      games: games
+        ? { connect: games.map((game) => ({ id: game.id })) }
+        : undefined,
+      formTypes: formTypes
+        ? { connect: formTypes.map((formType) => ({ id: formType.id })) }
+        : undefined,
     },
     include: {
-      firstType: true,
-      secondType: true,
-      pokemon: true,
-      games: true,
-      listEntities: true,
+      firstType: deep,
+      secondType: deep,
+      pokemon: deep,
+      games: deep,
+      listEntities: deep,
+      formTypes: deep,
     },
   });
-
-  if (formTypes) {
-    const formTypeIds = formTypes.map((formType) => {
-      return { id: formType.id };
-    });
-
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: createdPokemonForm.id },
-      data: {
-        formTypes: { connect: formTypeIds },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (firstType) {
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: createdPokemonForm.id },
-      data: {
-        firstType: { connect: { id: firstType.id } },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (secondType) {
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: createdPokemonForm.id },
-      data: {
-        secondType: { connect: { id: secondType.id } },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (games) {
-    const gameIds = games.map((game) => {
-      return { id: game.id };
-    });
-
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: createdPokemonForm.id },
-      data: {
-        games: { connect: gameIds },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (updatedPokemonForm) return updatedPokemonForm;
 
   return createdPokemonForm;
 };
 
 export const findOne = async (
   pokemonFormId: number,
-): Promise<PokemonFormDB> => {
+  deep: boolean,
+): Promise<typeof foundPokemonForm> => {
   const foundPokemonForm = await PokemonForms.findUniqueOrThrow({
     where: { id: pokemonFormId },
     include: {
-      firstType: true,
-      secondType: true,
-      pokemon: true,
-      games: true,
-      listEntities: true,
+      firstType: deep,
+      secondType: deep,
+      pokemon: deep,
+      games: deep,
+      listEntities: deep,
+      formTypes: deep,
     },
   });
   return foundPokemonForm;
@@ -142,128 +78,52 @@ export const findOne = async (
 
 export const update = async (
   pokemonFormId: number,
-  newPokemonForm: updatePokemonForm,
-): Promise<PokemonFormDB> => {
+  newPokemonForm: UpdatePokemonForm,
+  deep: boolean,
+): Promise<typeof updatedPokemonForm> => {
   const { pokemon, firstType, secondType, formTypes, games, ...props } =
     newPokemonForm;
 
-  let updatedPokemonForm;
-
-  updatedPokemonForm = await PokemonForms.update({
+  const updatedPokemonForm = await PokemonForms.update({
     where: { id: pokemonFormId },
     data: {
       ...props,
+      pokemon: pokemon ? { connect: { id: pokemon.id } } : undefined,
+      firstType: firstType ? { connect: { id: firstType.id } } : undefined,
+      secondType: secondType ? { connect: { id: secondType.id } } : undefined,
+      games: games
+        ? { connect: games.map((game) => ({ id: game.id })) }
+        : undefined,
+      formTypes: formTypes
+        ? { connect: formTypes.map((formType) => ({ id: formType.id })) }
+        : undefined,
     },
     include: {
-      firstType: true,
-      secondType: true,
-      pokemon: true,
-      games: true,
-      listEntities: true,
+      firstType: deep,
+      secondType: deep,
+      pokemon: deep,
+      games: deep,
+      listEntities: deep,
+      formTypes: deep,
     },
   });
-  if (pokemon) {
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: pokemonFormId },
-      data: {
-        pokemon: { connect: { id: pokemon.id } },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (formTypes) {
-    const formTypeIds = formTypes.map((formType) => {
-      return { id: formType.id };
-    });
-
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: pokemonFormId },
-      data: {
-        formTypes: { connect: formTypeIds },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (firstType) {
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: pokemonFormId },
-      data: {
-        firstType: { connect: { id: firstType.id } },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (secondType) {
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: pokemonFormId },
-      data: {
-        secondType: { connect: { id: secondType.id } },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (games) {
-    const gameIds = games.map((game) => {
-      return { id: game.id };
-    });
-
-    updatedPokemonForm = await PokemonForms.update({
-      where: { id: pokemonFormId },
-      data: {
-        games: { set: gameIds },
-      },
-      include: {
-        firstType: true,
-        secondType: true,
-        pokemon: true,
-        games: true,
-        listEntities: true,
-      },
-    });
-  }
-
-  if (updatedPokemonForm) return updatedPokemonForm;
 
   return updatedPokemonForm;
 };
 
-export const deleteOne = async (pokemonId: number): Promise<PokemonFormDB> => {
+export const deleteOne = async (
+  pokemonId: number,
+  deep: boolean,
+): Promise<typeof deletedPokemonForm> => {
   const deletedPokemonForm = await PokemonForms.delete({
     where: { id: pokemonId },
     include: {
-      firstType: true,
-      secondType: true,
-      pokemon: true,
-      games: true,
-      listEntities: true,
+      firstType: deep,
+      secondType: deep,
+      pokemon: deep,
+      games: deep,
+      listEntities: deep,
+      formTypes: deep,
     },
   });
   return deletedPokemonForm;

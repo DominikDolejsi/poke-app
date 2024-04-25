@@ -3,7 +3,7 @@ import ErrorResponse from "./types/errorResponse.js";
 import NotFoundResponse from "./types/notFoundResponse.js";
 import { ZodError } from "zod";
 import RequestValidators from "./types/requestValidators.js";
-import { User, Users } from "./api/v1/users/users.model.js";
+import { user, Users } from "./api/v1/users/users.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JwtPayload } from "jsonwebtoken";

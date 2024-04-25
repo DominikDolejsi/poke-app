@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import * as userServices from "../api/v1/users/users.services.js";
 import * as authServices from "./auth.services.js";
 import { LoginCredentials } from "../types/loginCredentials.js";
-import { User, UserDB } from "../api/v1/users/users.model.js";
+import { user, userDB } from "../api/v1/users/users.model.js";
 
 export const register = async (
-  req: Request<EmptyParams, EmptyBody, User>,
+  req: Request<object, object, User>,
   res: Response<UserDB>,
   next: NextFunction,
 ) => {
@@ -18,8 +18,8 @@ export const register = async (
 };
 
 export const login = async (
-  req: Request<EmptyParams, EmptyBody, LoginCredentials>,
-  res: Response<AccessToken>,
+  req: Request<object, object, LoginCredentials>,
+  res: Response<{ accessToken: string }>,
   next: NextFunction,
 ) => {
   try {
@@ -55,4 +55,3 @@ export const refresh = async (
     next(error);
   }
 };
-

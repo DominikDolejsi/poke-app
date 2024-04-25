@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { z } from "zod";
-import { pokemonDB, pokemon, updatePokemon } from "./pokemons.model.js";
+import { pokemon, updatePokemon } from "./pokemons.model.js";
 import * as pokemonsServices from "./pokemons.services.js";
 import { zParse } from "../../../utils/zParse.js";
-import { reqQuerySchema } from "../../../types/queryTypes.js";
-import { paramsId } from "../../../types/paramsTypes.js";
-import { createSchema, deleteSchema, getAllSchema, getOneSchema, updateSchema } from "../../../types/reqSchemaTypes.js";
+import {
+  createSchema,
+  deleteSchema,
+  getAllSchema,
+  pokemonGetOneSchema,
+  updateSchema,
+} from "../../../types/reqSchemaTypes.js";
 
 export const getAll = async (
   req: Request,
@@ -28,7 +31,10 @@ export const create = async (
   next: NextFunction,
 ) => {
   try {
-    const { body, query } = await zParse(createSchema.extend({ body: pokemon }), req);
+    const { body, query } = await zParse(
+      createSchema.extend({ body: pokemon }),
+      req,
+    );
 
     const createdPokemon = await pokemonsServices.create(body, query.deep);
     res.status(201).json(createdPokemon);
@@ -43,12 +49,9 @@ export const getOne = async (
   next: NextFunction,
 ) => {
   try {
-    const { query, params } = await zParse(getOneSchema, req);
+    const { query, params } = await zParse(pokemonGetOneSchema, req);
 
-    const foundPokemon = await pokemonsServices.findOne(
-      params.id,
-      query,
-    );
+    const foundPokemon = await pokemonsServices.findOne(params.id, query);
     res.status(200).json(foundPokemon);
   } catch (error) {
     next(error);
@@ -61,12 +64,15 @@ export const update = async (
   next: NextFunction,
 ) => {
   try {
-    const {query ,params, body} = await zParse(updateSchema.extend({ body: updatePokemon}), req); 
+    const { query, params, body } = await zParse(
+      updateSchema.extend({ body: updatePokemon }),
+      req,
+    );
 
     const updatedPokemon = await pokemonsServices.update(
       params.id,
       body,
-      query,
+      query.deep,
     );
     res.status(200).json(updatedPokemon);
   } catch (error) {
@@ -84,7 +90,7 @@ export const deleteOne = async (
 
     const deletedPokemon = await pokemonsServices.deleteOne(
       params.id,
-      query
+      query.deep,
     );
     res.sendStatus(204);
   } catch (error) {

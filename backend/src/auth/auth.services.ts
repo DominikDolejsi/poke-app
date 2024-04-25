@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { UserDB, Users } from "../api/v1/users/users.model.js";
+import { userDB, Users } from "../api/v1/users/users.model.js";
 import "dotenv/config";
 import { LoginCredentials } from "../types/loginCredentials.js";
 import { JwtPayload } from "jsonwebtoken";

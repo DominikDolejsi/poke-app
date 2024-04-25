@@ -1,22 +1,23 @@
 import { z } from "zod";
 import { prisma } from "../../../db.js";
+import { genericDBModel } from "../../../types/genericDBTypes.js";
 
-export const List = z.object({
+export const list = z.object({
   name: z.string().min(1),
   description: z.string().min(1).nullable(),
   user: z.object({ id: z.string().uuid() }),
 });
 
-export const ListDB = List.extend({
+export const listDB = list.extend({
   id: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.nullable(z.date()),
-  entities: z.object({ id: z.number().int() }).array().optional(),
+  entities: genericDBModel.array().optional(),
 });
 
-export const updateList = List.partial();
+export const updateList = list.partial();
 
-export type List = z.infer<typeof List>;
-export type ListDB = z.infer<typeof ListDB>;
-export type updateList = z.infer<typeof updateList>;
+export type List = z.infer<typeof list>;
+export type ListDB = z.infer<typeof listDB>;
+export type UpdateList = z.infer<typeof updateList>;
 export const Lists = prisma.list;

@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { prisma } from "../../../db.js";
 import { isArrayinString } from "../../../utils/fieldFormater.js";
+import { genericDBModel } from "../../../types/genericDBTypes.js";
 
-export const PokemonType = z.object({
+export const pokemonType = z.object({
   name: z.string().min(1),
   doubleTo: z.nullable(z.string().refine(isArrayinString)).optional(),
   doubleFrom: z.nullable(z.string().refine(isArrayinString)).optional(),
@@ -10,20 +11,20 @@ export const PokemonType = z.object({
   halfFrom: z.nullable(z.string().refine(isArrayinString)).optional(),
   immuneTo: z.nullable(z.string().refine(isArrayinString)).optional(),
   immuneFrom: z.nullable(z.string().refine(isArrayinString)).optional(),
-  firstSlotPokemon: z.object({ id: z.number().int() }).array().optional(),
-  secondSlotPokemon: z.object({ id: z.number().int() }).array().optional(),
-  firstSlotForm: z.object({ id: z.number().int() }).array().optional(),
-  secondSlotForm: z.object({ id: z.number().int() }).array().optional(),
+  firstSlotPokemon: genericDBModel.array().optional(),
+  secondSlotPokemon: genericDBModel.array().optional(),
+  firstSlotForm: genericDBModel.array().optional(),
+  secondSlotForm: genericDBModel.array().optional(),
 });
 
-export const PokemonTypeDB = PokemonType.extend({
+export const pokemonTypeDB = pokemonType.extend({
   id: z.number().int(),
 });
 
-export const updatePokemonType = PokemonType.partial();
+export const updatePokemonType = pokemonType.partial();
 
-export type PokemonType = z.infer<typeof PokemonType>;
-export type PokemonTypeDB = z.infer<typeof PokemonTypeDB>;
-export type updatePokemonType = z.infer<typeof updatePokemonType>;
+export type PokemonType = z.infer<typeof pokemonType>;
+export type PokemonTypeDB = z.infer<typeof pokemonTypeDB>;
+export type UpdatePokemonType = z.infer<typeof updatePokemonType>;
 
 export const PokemonTypes = prisma.pokemonType;

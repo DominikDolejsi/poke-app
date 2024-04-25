@@ -1,4 +1,4 @@
-import { PokemonForm } from "../api/v1/pokemon_forms/pokemonForms.model.js";
+import { pokemonForm } from "../api/v1/pokemon_forms/pokemonForms.model.js";
 import { pokemonDB } from "../api/v1/pokemons/pokemons.model.js";
 import {
   Stats,

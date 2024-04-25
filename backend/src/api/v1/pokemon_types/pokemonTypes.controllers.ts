@@ -1,23 +1,24 @@
 import { Request, Response, NextFunction } from "express";
-import {
-  PokemonType,
-  PokemonTypeDB,
-  updatePokemonType,
-} from "./pokemonTypes.model.js";
+import { pokemonType, updatePokemonType } from "./pokemonTypes.model.js";
 import * as pokemonTypesServices from "./pokemonTypes.services.js";
-import { paramsWithId } from "../../../types/paramsWithId.js";
-import { EmptyParams, EmptyBody } from "../../../types/expressTypes.js";
-import { ReqQuery } from "../../../types/queryTypes.js";
-import { queryFormater } from "../../../utils/queryFormater.js";
+import { zParse } from "../../../utils/zParse.js";
+import {
+  createSchema,
+  deleteSchema,
+  getAllSchema,
+  getOneSchema,
+  updateSchema,
+} from "../../../types/reqSchemaTypes.js";
 
 export const getAll = async (
-  req: Request<EmptyParams, EmptyBody, EmptyBody, ReqQuery>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const reqQuery = queryFormater(req.query);
-    const foundPokemonTypes = await pokemonTypesServices.findAll(reqQuery);
+    const { query } = await zParse(getAllSchema, req);
+
+    const foundPokemonTypes = await pokemonTypesServices.findAll(query);
     res.status(200).json(foundPokemonTypes);
   } catch (error) {
     next(error);
@@ -25,12 +26,20 @@ export const getAll = async (
 };
 
 export const create = async (
-  req: Request<Record<string, never>, PokemonTypeDB, PokemonType>,
-  res: Response<PokemonTypeDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const createdPokemonType = await pokemonTypesServices.create(req.body);
+    const { query, body } = await zParse(
+      createSchema.extend({ body: pokemonType }),
+      req,
+    );
+
+    const createdPokemonType = await pokemonTypesServices.create(
+      body,
+      query.deep,
+    );
     res.status(201).json(createdPokemonType);
   } catch (error) {
     next(error);
@@ -38,13 +47,16 @@ export const create = async (
 };
 
 export const getOne = async (
-  req: Request<ParamsWithId, PokemonTypeDB>,
-  res: Response<PokemonTypeDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
+    const { query, params } = await zParse(getOneSchema, req);
+
     const foundPokemonType = await pokemonTypesServices.findOne(
-      Number(req.params.id),
+      params.id,
+      query.deep,
     );
     res.status(200).json(foundPokemonType);
   } catch (error) {
@@ -53,14 +65,20 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, PokemonTypeDB, updatePokemonType>,
-  res: Response<PokemonTypeDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
+    const { query, params, body } = await zParse(
+      updateSchema.extend({ body: updatePokemonType }),
+      req,
+    );
+
     const updatedPokemonType = await pokemonTypesServices.update(
-      Number(req.params.id),
-      req.body,
+      params.id,
+      body,
+      query.deep,
     );
     res.status(200).json(updatedPokemonType);
   } catch (error) {
@@ -69,13 +87,16 @@ export const update = async (
 };
 
 export const deleteOne = async (
-  req: Request<ParamsWithId>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
+    const { query, params } = await zParse(deleteSchema, req);
+
     const deletedPokemonType = await pokemonTypesServices.deleteOne(
-      Number(req.params.id),
+      params.id,
+      query.deep,
     );
     res.sendStatus(204);
   } catch (error) {

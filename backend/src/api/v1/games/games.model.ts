@@ -1,19 +1,19 @@
 import { z } from "zod";
 import { prisma } from "../../../db.js";
 
-export const Game = z.object({
+export const game = z.object({
   name: z.string().min(1),
   pokemon: z.object({ id: z.number().int() }).array().optional(),
   forms: z.object({ id: z.number().int() }).array().optional(),
 });
 
-export const GameDB = Game.extend({
+export const gameDB = game.extend({
   id: z.number().int(),
 });
 
-export const updateGame = Game.partial();
+export const updateGame = game.partial();
 
-export type Game = z.infer<typeof Game>;
-export type GameDB = z.infer<typeof GameDB>;
-export type updateGame = z.infer<typeof updateGame>;
+export type Game = z.infer<typeof game>;
+export type GameDB = z.infer<typeof gameDB>;
+export type UpdateGame = z.infer<typeof updateGame>;
 export const Games = prisma.game;

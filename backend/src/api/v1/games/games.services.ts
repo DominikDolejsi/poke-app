@@ -1,4 +1,4 @@
-import { Games, GameDB, Game, updateGame } from "./games.model.js";
+import { Games, gameDB, game, UpdateGame } from "./games.model.js";
 
 export const findAll = async (): Promise<GameDB[]> => {
   const foundGames = await Games.findMany({
@@ -60,7 +60,7 @@ export const findOne = async (gameId: number): Promise<GameDB> => {
 
 export const update = async (
   gameId: number,
-  newGame: updateGame,
+  newGame: UpdateGame,
 ): Promise<GameDB> => {
   const { pokemon, forms, ...rest } = newGame;
 

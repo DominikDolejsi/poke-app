@@ -1,5 +1,5 @@
 import { FormatedQuery } from "../../../types/queryTypes.js";
-import { Users, UserDB, User, updateUser } from "./users.model.js";
+import { Users, userDB, user, UpdateUser } from "./users.model.js";
 
 export const findAll = async ({
   limit,
@@ -33,7 +33,7 @@ export const findOne = async (userId: string): Promise<UserDB> => {
 
 export const update = async (
   userId: string,
-  newUser: updateUser,
+  newUser: UpdateUser,
 ): Promise<UserDB> => {
   const updatedUser = await Users.update({
     where: { id: userId },

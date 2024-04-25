@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { prisma } from "../../../db.js";
+import { genericDBModel } from "../../../types/genericDBTypes.js";
 
-export const PokemonForm = z.object({
+export const pokemonForm = z.object({
   name: z.string().min(1),
   generation: z.nullable(z.number().int()),
   health: z.nullable(z.number().int()),
@@ -18,23 +19,23 @@ export const PokemonForm = z.object({
   homeFemale: z.nullable(z.string().min(1)),
   homeMaleShiny: z.nullable(z.string().min(1)),
   homeFemaleShiny: z.nullable(z.string().min(1)),
-  pokemon: z.object({ id: z.number().int() }),
-  firstType: z.nullable(z.object({ id: z.number().int() })).optional(),
-  secondType: z.nullable(z.object({ id: z.number().int() })).optional(),
-  formTypes: z.nullable(z.object({ id: z.number().int() }).array()).optional(),
-  games: z.nullable(z.object({ id: z.number().int() }).array()).optional(),
+  pokemon: genericDBModel,
+  firstType: z.nullable(genericDBModel),
+  secondType: z.nullable(genericDBModel),
+  formTypes: genericDBModel.array(),
+  games: genericDBModel.array(),
 });
 
-export const PokemonFormDB = PokemonForm.extend({
+export const pokemonFormDB = pokemonForm.extend({
   id: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.nullable(z.date()),
-  listEntities: z.object({ id: z.number().int() }).array(),
+  listEntities: genericDBModel.array(),
 });
 
-export const updatePokemonForm = PokemonForm.partial();
+export const updatePokemonForm = pokemonForm.partial();
 
-export type PokemonForm = z.infer<typeof PokemonForm>;
-export type PokemonFormDB = z.infer<typeof PokemonFormDB>;
-export type updatePokemonForm = z.infer<typeof updatePokemonForm>;
+export type PokemonForm = z.infer<typeof pokemonForm>;
+export type PokemonFormDB = z.infer<typeof pokemonFormDB>;
+export type UpdatePokemonForm = z.infer<typeof updatePokemonForm>;
 export const PokemonForms = prisma.pokemonForm;

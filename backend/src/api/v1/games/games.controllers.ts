@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Game, GameDB, updateGame } from "./games.model.js";
+import { game, gameDB, UpdateGame } from "./games.model.js";
 import * as gamesServices from "./games.services.js";
 import { paramsWithId } from "../../../types/paramsWithId.js";
 
@@ -43,7 +43,7 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, GameDB, updateGame>,
+  req: Request<ParamsWithId, GameDB, UpdateGame>,
   res: Response<GameDB>,
   next: NextFunction,
 ) => {

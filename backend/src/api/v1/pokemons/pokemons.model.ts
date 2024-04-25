@@ -1,8 +1,11 @@
 import { z } from "zod";
 import { prisma } from "../../../db.js";
-import { isArrayinString } from "../../../utils/fieldFormater.js";
+import { pokemonFormDB } from "../pokemon_forms/pokemonForms.model.js";
+import { formTypeDB } from "../form_types/formTypes.model.js";
+import { gameDB } from "../games/games.model.js";
+import { pokemonTypeDB } from "../pokemon_types/pokemonTypes.model.js";
 
-export const pokemon = z.object({
+const basePokemon = z.object({
   name: z.string().min(1),
   formName: z.nullable(z.string().min(1)).optional(),
   species: z.string().min(1),
@@ -29,25 +32,51 @@ export const pokemon = z.object({
   homeFemale: z.nullable(z.string().min(1)),
   homeMaleShiny: z.nullable(z.string().min(1)),
   homeFemaleShiny: z.nullable(z.string().min(1)),
-  nextEvolution: z.nullable(z.string().refine(isArrayinString)).optional(),
-  previousEvolution: z.nullable(z.string().refine(isArrayinString)).optional(),
-  firstType: z.object({ id: z.number().int() }),
-  secondType: z.nullable(z.object({ id: z.number().int() })),
-  formTypes: z.nullable(z.object({ id: z.number().int() }).array()).optional(),
-  games: z.object({ id: z.number().int() }).array().optional(),
-  forms: z.object({ id: z.number().int() }).array().optional(),
+  firstType: pokemonTypeDB,
+  secondType: pokemonTypeDB.nullable(),
+  formTypes: formTypeDB.array(),
+  games: gameDB.array(),
+  forms: pokemonFormDB.array(),
 });
 
-export const pokemonDB = pokemon.extend({
+const baseUpdatePokemon = basePokemon.partial();
+
+const basePokemonDB = basePokemon.extend({
   id: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.nullable(z.date()),
   listEntities: z.object({ id: z.number().int() }).array(),
 });
 
-export const updatePokemon = pokemon.partial();
+export const pokemonDB: z.ZodType<PokemonDB> = basePokemonDB.extend({
+  previousEvolution: z.lazy(() => pokemonDB.nullable()),
+  nextEvolution: z.lazy(() => pokemonDB.array()),
+});
 
-export type Pokemon = z.infer<typeof pokemon>;
-export type PokemonDB = z.infer<typeof pokemonDB>;
-export type UpdatePokemon = z.infer<typeof updatePokemon>;
+export const pokemon: z.ZodType<Pokemon> = basePokemon.extend({
+  previousEvolution: z.lazy(() => pokemonDB.nullable()),
+  nextEvolution: z.lazy(() => pokemonDB.array()),
+});
+
+export const updatePokemon: z.ZodType<UpdatePokemon> = baseUpdatePokemon.extend(
+  {
+    previousEvolution: z.lazy(() => pokemonDB.nullable().optional()),
+    nextEvolution: z.lazy(() => pokemonDB.array().optional()),
+  },
+);
+
+export type Pokemon = z.infer<typeof basePokemon> & {
+  previousEvolution: PokemonDB | null;
+  nextEvolution: PokemonDB[];
+};
+export type UpdatePokemon = z.infer<typeof baseUpdatePokemon> & {
+  previousEvolution?: PokemonDB | null;
+  nextEvolution?: PokemonDB[];
+};
+
+export type PokemonDB = z.infer<typeof basePokemonDB> & {
+  previousEvolution: PokemonDB | null;
+  nextEvolution: PokemonDB[];
+};
+
 export const Pokemons = prisma.pokemon;

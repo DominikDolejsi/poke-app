@@ -1,8 +1,8 @@
 import {
   FormTypes,
-  FormTypeDB,
-  FormType,
-  updateFormType,
+  formTypeDB,
+  formType,
+  UpdateFormType,
 } from "./formTypes.model.js";
 
 export const findAll = async (): Promise<FormTypeDB[]> => {
@@ -51,7 +51,7 @@ export const findOne = async (formTypeId: number): Promise<FormTypeDB> => {
 
 export const update = async (
   formTypeId: number,
-  newFormType: updateFormType,
+  newFormType: UpdateFormType,
 ): Promise<FormTypeDB> => {
   const { forms, ...rest } = newFormType;
 

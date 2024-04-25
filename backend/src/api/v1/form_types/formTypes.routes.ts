@@ -2,7 +2,7 @@ import { Router } from "express";
 import * as formTypesController from "./formTypes.controllers.js";
 
 import { validateRequest } from "../../../middlewares.js";
-import { FormType, updateFormType } from "./formTypes.model.js";
+import { formType, UpdateFormType } from "./formTypes.model.js";
 import { paramsWithId } from "../../../types/paramsWithId.js";
 
 const router = Router();
@@ -10,7 +10,7 @@ const router = Router();
 router
   .route("/")
   .get(formTypesController.getAll)
-  .post(validateRequest({ body: FormType }), formTypesController.create);
+  .post(validateRequest({ body: formType }), formTypesController.create);
 
 router
   .route("/:id")

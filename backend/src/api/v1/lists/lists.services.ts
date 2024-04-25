@@ -1,12 +1,11 @@
-import { IdList } from "../../../types/idList.js";
-import { FormatedQuery } from "../../../types/queryTypes.js";
-import { Lists, ListDB, List, updateList } from "./lists.model.js";
+import { ManyQuery } from "../../../types/queryTypes.js";
+import { Lists, UpdateList, List } from "./lists.model.js";
 
 export const findAll = async ({
   limit,
   offset,
   deep,
-}: FormatedQuery): Promise<ListDB[]> => {
+}: ManyQuery): Promise<typeof foundLists> => {
   const foundLists = await Lists.findMany({
     take: limit,
     skip: offset,
@@ -16,7 +15,10 @@ export const findAll = async ({
   return foundLists;
 };
 
-export const create = async (newList: List): Promise<ListDB> => {
+export const create = async (
+  newList: List,
+  deep: boolean,
+): Promise<typeof createdList> => {
   const { user, ...rest } = newList;
 
   const createdList = await Lists.create({
@@ -24,50 +26,59 @@ export const create = async (newList: List): Promise<ListDB> => {
       ...rest,
       user: { connect: { id: user.id } },
     },
-    include: { user: true, entities: true },
+    include: { user: deep, entities: deep },
   });
 
   return createdList;
 };
 
-export const findOne = async (listid: number): Promise<ListDB> => {
-  const foundGame = await Lists.findUniqueOrThrow({
+export const findOne = async (
+  listid: number,
+  deep: boolean,
+): Promise<typeof foundList> => {
+  const foundList = await Lists.findUniqueOrThrow({
     where: { id: listid },
-    include: { user: true, entities: true },
+    include: { user: deep, entities: deep },
   });
-  return foundGame;
+  return foundList;
 };
 
 export const update = async (
   listId: number,
-  newList: updateList,
-): Promise<ListDB> => {
+  deep: boolean,
+  newList: UpdateList,
+): Promise<typeof updatedList> => {
   const { user, ...rest } = newList;
 
-  const updatedGame = await Lists.update({
+  const updatedList = await Lists.update({
     where: { id: listId },
     data: {
       ...rest,
+      user: user ? { connect: { id: user.id } } : undefined,
     },
-    include: { user: true, entities: true },
+    include: { user: deep, entities: deep },
   });
 
-  return updatedGame;
+  return updatedList;
 };
 
-export const deleteOne = async (listId: number): Promise<ListDB> => {
-  const deletedGame = await Lists.delete({
+export const deleteOne = async (
+  listId: number,
+  deep: boolean,
+): Promise<typeof deletedList> => {
+  const deletedList = await Lists.delete({
     where: { id: listId },
-    include: { user: true },
+    include: { user: deep },
   });
-  return deletedGame;
+  return deletedList;
 };
 
 export const deleteMany = async (
-  IdList: IdList,
-): Promise<{ count: number }> => {
-  const deletedGame = await Lists.deleteMany({
-    where: { id: { in: IdList.idList } },
+  listIds: number[],
+  deleteAll: boolean,
+): Promise<typeof deletedLists> => {
+  const deletedLists = await Lists.deleteMany({
+    where: { id: { in: listIds } },
   });
-  return deletedGame;
+  return deletedLists;
 };

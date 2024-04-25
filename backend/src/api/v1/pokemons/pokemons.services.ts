@@ -1,16 +1,11 @@
-import { ReqQuery } from "../../../types/queryTypes.js";
-import {
-  Pokemons,
-  UpdatePokemon,
-  PokemonDB,
-  Pokemon,
-} from "./pokemons.model.js";
+import { ManyQuery, PokemonOneQuery } from "../../../types/queryTypes.js";
+import { Pokemons, UpdatePokemon, Pokemon } from "./pokemons.model.js";
 
 export const findAll = async ({
   limit,
   offset,
   deep,
-}: ReqQuery): Promise<PokemonDB[]> => {
+}: ManyQuery): Promise<typeof foundPokemons> => {
   const foundPokemons = await Pokemons.findMany({
     take: limit,
     skip: offset,
@@ -20,30 +15,34 @@ export const findAll = async ({
       forms: deep,
       games: deep,
       listEntities: deep,
+      nextEvolution: deep,
+      previousEvolution: deep,
+      formTypes: deep,
     },
   });
   return foundPokemons;
 };
 
-export const create = async (newPokemon: Pokemon, deep: boolean): Promise<PokemonDB> => {
-  const { games, firstType, secondType, forms, formTypes, ...rest } = newPokemon;
-
-  const include = {
-    firstType: deep,
-    secondType: deep,
-    forms: deep,
-    games: deep,
-    listEntities: deep,
-    formTypes: deep,
-  }
+export const create = async (
+  newPokemon: Pokemon,
+  deep: boolean,
+): Promise<typeof createdPokemon> => {
+  const {
+    games,
+    firstType,
+    secondType,
+    forms,
+    formTypes,
+    nextEvolution,
+    previousEvolution,
+    ...rest
+  } = newPokemon;
 
   const createdPokemon = await Pokemons.create({
     data: {
       ...rest,
       firstType: { connect: { id: firstType.id } },
-      secondType: secondType
-        ? { connect: { id: secondType.id } }
-        : undefined,
+      secondType: secondType ? { connect: { id: secondType.id } } : undefined,
       formTypes: formTypes
         ? { connect: formTypes.map((formType) => ({ id: formType.id })) }
         : undefined,
@@ -53,19 +52,38 @@ export const create = async (newPokemon: Pokemon, deep: boolean): Promise<Pokemo
       forms: forms
         ? { connect: forms.map((form) => ({ id: form.id })) }
         : undefined,
+      nextEvolution: nextEvolution
+        ? {
+            connect: nextEvolution.map((nextEvolution) => ({
+              id: nextEvolution.id,
+            })),
+          }
+        : undefined,
+      previousEvolution: previousEvolution
+        ? { connect: { id: previousEvolution.id } }
+        : undefined,
     },
-    include,
+    include: {
+      firstType: deep,
+      secondType: deep,
+      forms: deep,
+      games: deep,
+      listEntities: deep,
+      nextEvolution: deep,
+      previousEvolution: deep,
+      formTypes: deep,
+    },
   });
 
   return createdPokemon;
 };
 
 export const findOne = async (
-  uniqueValue: number,
-  { id, deep, }: ReqQuery,
-): Promise<PokemonDB> => {
+  pokemonId: number,
+  { id, deep }: PokemonOneQuery,
+): Promise<typeof foundPokemon> => {
   const foundPokemon = await Pokemons.findUniqueOrThrow({
-    where: id ? { id: uniqueValue } : { nationalIndex: uniqueValue },
+    where: id ? { id: pokemonId } : { nationalIndex: pokemonId },
     include: {
       firstType: deep,
       secondType: deep,
@@ -73,6 +91,8 @@ export const findOne = async (
       games: deep,
       listEntities: deep,
       formTypes: deep,
+      nextEvolution: deep,
+      previousEvolution: deep,
     },
   });
   return foundPokemon;
@@ -82,29 +102,24 @@ export const update = async (
   pokemonId: number,
   newPokemon: UpdatePokemon,
   deep: boolean,
-): Promise<PokemonDB> => {
-  const { games, firstType, secondType, forms, formTypes, ...rest } = newPokemon;
+): Promise<typeof updatedPokemon> => {
+  const {
+    games,
+    firstType,
+    secondType,
+    forms,
+    formTypes,
+    nextEvolution,
+    previousEvolution,
+    ...rest
+  } = newPokemon;
 
-  const include = {
-    firstType: deep,
-    secondType: deep,
-    forms: deep,
-    games: deep,
-    listEntities: deep,
-    formTypes: deep,
-  }
-
-
-  const updatedPokemon: PokemonDB = await Pokemons.update({
+  const updatedPokemon = await Pokemons.update({
     where: { id: pokemonId },
     data: {
       ...rest,
-      firstType: firstType
-        ? { connect: { id: firstType.id } }
-        : undefined,
-      secondType: secondType
-        ? { connect: { id: secondType.id } }
-        : undefined,
+      firstType: firstType ? { connect: { id: firstType.id } } : undefined,
+      secondType: secondType ? { connect: { id: secondType.id } } : undefined,
       formTypes: formTypes
         ? { connect: formTypes.map((formType) => ({ id: formType.id })) }
         : undefined,
@@ -114,14 +129,36 @@ export const update = async (
       forms: forms
         ? { connect: forms.map((form) => ({ id: form.id })) }
         : undefined,
+      nextEvolution: nextEvolution
+        ? {
+            connect: nextEvolution.map((nextEvolution) => ({
+              id: nextEvolution.id,
+            })),
+          }
+        : undefined,
+      previousEvolution: previousEvolution
+        ? { connect: { id: previousEvolution.id } }
+        : undefined,
     },
-    include,
+    include: {
+      firstType: deep,
+      secondType: deep,
+      forms: deep,
+      games: deep,
+      listEntities: deep,
+      formTypes: deep,
+      nextEvolution: deep,
+      previousEvolution: deep,
+    },
   });
 
   return updatedPokemon;
 };
 
-export const deleteOne = async (pokemonId: number, deep: boolean): Promise<PokemonDB> => {
+export const deleteOne = async (
+  pokemonId: number,
+  deep: boolean,
+): Promise<typeof deletedPokemon> => {
   const deletedPokemon = await Pokemons.delete({
     where: { id: pokemonId },
     include: {
@@ -130,6 +167,9 @@ export const deleteOne = async (pokemonId: number, deep: boolean): Promise<Pokem
       forms: deep,
       games: deep,
       listEntities: deep,
+      formTypes: deep,
+      nextEvolution: deep,
+      previousEvolution: deep,
     },
   });
   return deletedPokemon;
