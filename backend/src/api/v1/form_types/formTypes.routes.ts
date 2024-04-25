@@ -1,27 +1,17 @@
 import { Router } from "express";
 import * as formTypesController from "./formTypes.controllers.js";
 
-import { validateRequest } from "../../../middlewares.js";
-import { formType, UpdateFormType } from "./formTypes.model.js";
-import { paramsWithId } from "../../../types/paramsWithId.js";
-
 const router = Router();
 
 router
   .route("/")
   .get(formTypesController.getAll)
-  .post(validateRequest({ body: formType }), formTypesController.create);
+  .post(formTypesController.create);
 
 router
   .route("/:id")
-  .get(validateRequest({ params: paramsWithId }), formTypesController.getOne)
-  .patch(
-    validateRequest({ params: paramsWithId, body: updateFormType }),
-    formTypesController.update,
-  )
-  .delete(
-    validateRequest({ params: paramsWithId }),
-    formTypesController.deleteOne,
-  );
+  .get(formTypesController.getOne)
+  .patch(formTypesController.update)
+  .delete(formTypesController.deleteOne);
 
 export default router;

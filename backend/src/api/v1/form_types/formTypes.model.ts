@@ -8,6 +8,8 @@ export const formType = z.object({
 
 export const formTypeDB = formType.extend({
   id: z.number().int(),
+  createdAt: z.date(),
+  updatedAt: z.nullable(z.date()),
 });
 
 export const updateFormType = formType.partial();

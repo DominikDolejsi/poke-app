@@ -1,28 +1,18 @@
 import { Router } from "express";
 import * as usersController from "./users.controllers.js";
-
-import { validateRequest, hashPassword} from "../../../middlewares.js";
-import { user, UpdateUser } from "./users.model.js";
-import { paramsWithUuid } from "../../../types/paramsWithId.js";
+import { hashPassword } from "../../../middlewares.js";
 
 const router = Router();
 
 router
   .route("/")
   .get(usersController.getAll)
-  .post(validateRequest({ body: user }), hashPassword, usersController.create);
+  .post(hashPassword, usersController.create);
 
 router
   .route("/:id")
-  .get(validateRequest({ params: paramsWithUuid }), usersController.getOne)
-  .patch(
-    validateRequest({ params: paramsWithUuid, body: updateUser }),
-    hashPassword,
-    usersController.update,
-  )
-  .delete(
-    validateRequest({ params: paramsWithUuid }),
-    usersController.deleteOne,
-  );
+  .get(usersController.getOne)
+  .patch(hashPassword, usersController.update)
+  .delete(usersController.deleteOne);
 
 export default router;

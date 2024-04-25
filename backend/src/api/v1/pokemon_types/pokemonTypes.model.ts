@@ -19,6 +19,8 @@ export const pokemonType = z.object({
 
 export const pokemonTypeDB = pokemonType.extend({
   id: z.number().int(),
+  createdAt: z.date(),
+  updatedAt: z.nullable(z.date()),
 });
 
 export const updatePokemonType = pokemonType.partial();

@@ -16,11 +16,11 @@ model User {
   password     String
   email        String    @unique
   admin        Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @updatedAt
   refreshToken String?   @unique
   emailToken   String?   @unique
   lists        List[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime? @updatedAt
 }
 
 model List {
@@ -29,9 +29,9 @@ model List {
   userId      String
   name        String
   description String?
+  entities    ListEntity[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime?    @updatedAt
-  entities    ListEntity[]
 }
 
 model ListEntity {
@@ -86,9 +86,9 @@ model Pokemon {
   nextEvolution        Pokemon[]     @relation("Evolution")
   forms                PokemonForm[]
   games                Game[]
+  listEntities         ListEntity[]
   createdAt            DateTime      @default(now())
   updatedAt            DateTime?     @updatedAt
-  listEntities         ListEntity[]
 }
 
 model PokemonForm {
@@ -117,23 +117,27 @@ model PokemonForm {
   homeMaleShiny      String?
   homeFemaleShiny    String?
   games              Game[]
+  listEntities       ListEntity[]
   createdAt          DateTime     @default(now())
   updatedAt          DateTime?    @updatedAt
-  listEntities       ListEntity[]
 }
 
 model Game {
-  id      Int           @id @default(autoincrement())
-  name    String        @unique
-  pokemon Pokemon[]
-  forms   PokemonForm[]
+  id        Int           @id @default(autoincrement())
+  name      String        @unique
+  pokemon   Pokemon[]
+  forms     PokemonForm[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime?     @updatedAt
 }
 
 model FormType {
-  id       Int           @id @default(autoincrement())
-  name     String        @unique
-  forms    PokemonForm[]
-  pokemons Pokemon[]
+  id        Int           @id @default(autoincrement())
+  name      String        @unique
+  forms     PokemonForm[]
+  pokemons  Pokemon[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime?     @updatedAt
 }
 
 model PokemonType {
@@ -149,6 +153,8 @@ model PokemonType {
   secondSlotPokemon Pokemon[]     @relation("second")
   firstSlotForm     PokemonForm[] @relation("formFirst")
   secondSlotForm    PokemonForm[] @relation("formSecond")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime?     @updatedAt
 }
 
 enum FormTypeName {

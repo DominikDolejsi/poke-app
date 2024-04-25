@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { game, gameDB, UpdateGame } from "./games.model.js";
+import { game, updateGame } from "./games.model.js";
 import * as gamesServices from "./games.services.js";
-import { paramsWithId } from "../../../types/paramsWithId.js";
+import { zParse } from "../../../utils/zParse.js";
+import {
+  createSchema,
+  deleteSchema,
+  getAllSchema,
+  getOneSchema,
+  updateSchema,
+} from "../../../types/reqSchemaTypes.js";
 
 export const getAll = async (
   req: Request,
@@ -9,7 +16,9 @@ export const getAll = async (
   next: NextFunction,
 ) => {
   try {
-    const foundGames = await gamesServices.findAll();
+    const { query } = await zParse(getAllSchema, req);
+
+    const foundGames = await gamesServices.findAll(query);
     res.status(200).json(foundGames);
   } catch (error) {
     next(error);
@@ -17,12 +26,17 @@ export const getAll = async (
 };
 
 export const create = async (
-  req: Request<Record<string, never>, GameDB, Game>,
-  res: Response<GameDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const createdGame = await gamesServices.create(req.body);
+    const { body, query } = await zParse(
+      createSchema.extend({ body: game }),
+      req,
+    );
+
+    const createdGame = await gamesServices.create(body, query.deep);
     res.status(201).json(createdGame);
   } catch (error) {
     next(error);
@@ -30,12 +44,14 @@ export const create = async (
 };
 
 export const getOne = async (
-  req: Request<ParamsWithId, GameDB>,
-  res: Response<GameDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const foundGame = await gamesServices.findOne(Number(req.params.id));
+    const { params, query } = await zParse(getOneSchema, req);
+
+    const foundGame = await gamesServices.findOne(params.id, query.deep);
     res.status(200).json(foundGame);
   } catch (error) {
     next(error);
@@ -43,15 +59,17 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, GameDB, UpdateGame>,
-  res: Response<GameDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const updatedGame = await gamesServices.update(
-      Number(req.params.id),
-      req.body,
+    const { body, params, query } = await zParse(
+      updateSchema.extend({ body: updateGame }),
+      req,
     );
+
+    const updatedGame = await gamesServices.update(params.id, body, query.deep);
     res.status(200).json(updatedGame);
   } catch (error) {
     next(error);
@@ -59,12 +77,14 @@ export const update = async (
 };
 
 export const deleteOne = async (
-  req: Request<ParamsWithId>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const deletedGame = await gamesServices.deleteOne(Number(req.params.id));
+    const { params } = await zParse(deleteSchema, req);
+
+    const deletedGame = await gamesServices.deleteOne(params.id);
     res.sendStatus(204);
   } catch (error) {
     next(error);

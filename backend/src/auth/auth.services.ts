@@ -1,17 +1,17 @@
 import jwt from "jsonwebtoken";
-import { userDB, Users } from "../api/v1/users/users.model.js";
+import { UserDB, Users } from "../api/v1/users/users.model.js";
 import "dotenv/config";
-import { LoginCredentials } from "../types/loginCredentials.js";
 import { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { Prisma } from "@prisma/client";
 
-export const authenticateUser = async (loginCredentials: LoginCredentials) => {
+export const authenticateUser = async (email: string) => {
   const foundUser = await Users.findUniqueOrThrow({
     where: {
-      email: loginCredentials.email,
+      email,
     },
-    include: { lists: true },
   });
+
   return foundUser;
 };
 
@@ -32,7 +32,6 @@ export const createRefreshToken = (id: string) => {
   });
   return refreshToken;
 };
-
 
 export const saveRefreshToken = async (id: string, refreshToken: string) => {
   await Users.update({
@@ -65,4 +64,3 @@ export const checkPassword = async (user: UserDB, password: string) => {
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) throw new Error("Incorrect password");
 };
-

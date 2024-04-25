@@ -1,11 +1,11 @@
-import { FormatedQuery } from "../../../types/queryTypes.js";
-import { Users, userDB, user, UpdateUser } from "./users.model.js";
+import { ManyQuery } from "../../../types/queryTypes.js";
+import { Users, UpdateUser, User } from "./users.model.js";
 
 export const findAll = async ({
   limit,
   offset,
   deep,
-}: FormatedQuery): Promise<UserDB[]> => {
+}: ManyQuery): Promise<typeof foundUsers> => {
   const foundUsers = await Users.findMany({
     take: limit,
     skip: offset,
@@ -14,19 +14,25 @@ export const findAll = async ({
   return foundUsers;
 };
 
-export const create = async (newUser: User): Promise<UserDB> => {
+export const create = async (
+  newUser: User,
+  deep: boolean,
+): Promise<typeof createdUser> => {
   const createdUser = await Users.create({
     data: newUser,
-    include: { lists: true },
+    include: { lists: deep },
   });
 
   return createdUser;
 };
 
-export const findOne = async (userId: string): Promise<UserDB> => {
+export const findOne = async (
+  userId: string,
+  deep: boolean,
+): Promise<typeof foundUser> => {
   const foundUser = await Users.findUniqueOrThrow({
     where: { id: userId },
-    include: { lists: true },
+    include: { lists: deep },
   });
   return foundUser;
 };
@@ -34,20 +40,22 @@ export const findOne = async (userId: string): Promise<UserDB> => {
 export const update = async (
   userId: string,
   newUser: UpdateUser,
-): Promise<UserDB> => {
+  deep: boolean,
+): Promise<typeof updatedUser> => {
   const updatedUser = await Users.update({
     where: { id: userId },
     data: newUser,
-    include: { lists: true },
+    include: { lists: deep },
   });
 
   return updatedUser;
 };
 
-export const deleteOne = async (userId: string): Promise<UserDB> => {
+export const deleteOne = async (
+  userId: string,
+): Promise<typeof deletedUser> => {
   const deletedUser = await Users.delete({
     where: { id: userId },
-    include: { lists: true },
   });
   return deletedUser;
 };

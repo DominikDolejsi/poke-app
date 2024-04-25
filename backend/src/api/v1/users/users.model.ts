@@ -12,10 +12,10 @@ export const user = z.object({
 export const userDB = user.extend({
   id: z.string().uuid(),
   admin: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.nullable(z.date()),
   refreshToken: z.nullable(z.string()),
   lists: genericDBModel.array().nullable().optional(),
+  createdAt: z.date(),
+  updatedAt: z.nullable(z.date()),
 });
 
 export const updateUser = user.partial();

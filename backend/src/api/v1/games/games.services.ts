@@ -1,59 +1,48 @@
-import { Games, gameDB, game, UpdateGame } from "./games.model.js";
+import { ManyQuery } from "../../../types/queryTypes.js";
+import { Games, UpdateGame, Game } from "./games.model.js";
 
-export const findAll = async (): Promise<GameDB[]> => {
+export const findAll = async ({
+  limit,
+  offset,
+  deep,
+}: ManyQuery): Promise<typeof foundGames> => {
   const foundGames = await Games.findMany({
-    include: { pokemon: true, forms: true },
+    take: limit,
+    skip: offset,
+    include: { pokemon: deep, forms: deep },
   });
   return foundGames;
 };
 
-export const create = async (newGame: Game): Promise<GameDB> => {
+export const create = async (
+  newGame: Game,
+  deep: boolean,
+): Promise<typeof createdGame> => {
   const { pokemon, forms, ...rest } = newGame;
 
-  let updatedGame;
-
   const createdGame = await Games.create({
-    data: rest,
-    include: { pokemon: true, forms: true },
+    data: {
+      ...rest,
+      pokemon: pokemon
+        ? { connect: pokemon.map((pokemon) => ({ id: pokemon.id })) }
+        : undefined,
+      forms: forms
+        ? { connect: forms.map((form) => ({ id: form.id })) }
+        : undefined,
+    },
+    include: { pokemon: deep, forms: deep },
   });
-
-  if (pokemon) {
-    const pokemonIds = pokemon.map((pokemon) => {
-      return { id: pokemon.id };
-    });
-
-    updatedGame = await Games.update({
-      where: { id: createdGame.id },
-      data: {
-        pokemon: { connect: pokemonIds },
-      },
-      include: { pokemon: true, forms: true },
-    });
-  }
-
-  if (forms) {
-    const formIds = forms.map((form) => {
-      return { id: form.id };
-    });
-
-    updatedGame = await Games.update({
-      where: { id: createdGame.id },
-      data: {
-        forms: { connect: formIds },
-      },
-      include: { pokemon: true, forms: true },
-    });
-  }
-
-  if (updatedGame) return updatedGame;
 
   return createdGame;
 };
 
-export const findOne = async (gameId: number): Promise<GameDB> => {
+export const findOne = async (
+  gameId: number,
+  deep: boolean,
+): Promise<typeof foundGame> => {
   const foundGame = await Games.findUniqueOrThrow({
     where: { id: gameId },
-    include: { pokemon: true, forms: true },
+    include: { pokemon: deep, forms: deep },
   });
   return foundGame;
 };
@@ -61,52 +50,32 @@ export const findOne = async (gameId: number): Promise<GameDB> => {
 export const update = async (
   gameId: number,
   newGame: UpdateGame,
-): Promise<GameDB> => {
+  deep: boolean,
+): Promise<typeof updatedGame> => {
   const { pokemon, forms, ...rest } = newGame;
 
-  let updatedGame;
-
-  updatedGame = await Games.update({
+  const updatedGame = await Games.update({
     where: { id: gameId },
-    data: rest,
-    include: { pokemon: true, forms: true },
+    data: {
+      ...rest,
+      pokemon: pokemon
+        ? { connect: pokemon.map((pokemon) => ({ id: pokemon.id })) }
+        : undefined,
+      forms: forms
+        ? { connect: forms.map((form) => ({ id: form.id })) }
+        : undefined,
+    },
+    include: { pokemon: deep, forms: deep },
   });
-
-  if (pokemon) {
-    const pokemonIds = pokemon.map((pokemon) => {
-      return { id: pokemon.id };
-    });
-
-    updatedGame = await Games.update({
-      where: { id: gameId },
-      data: {
-        pokemon: { set: pokemonIds },
-      },
-      include: { pokemon: true, forms: true },
-    });
-  }
-
-  if (forms) {
-    const formIds = forms.map((form) => {
-      return { id: form.id };
-    });
-
-    updatedGame = await Games.update({
-      where: { id: gameId },
-      data: {
-        forms: { set: formIds },
-      },
-      include: { pokemon: true, forms: true },
-    });
-  }
 
   return updatedGame;
 };
 
-export const deleteOne = async (gameId: number): Promise<GameDB> => {
+export const deleteOne = async (
+  gameId: number,
+): Promise<typeof deletedGame> => {
   const deletedGame = await Games.delete({
     where: { id: gameId },
-    include: { pokemon: true, forms: true },
   });
   return deletedGame;
 };

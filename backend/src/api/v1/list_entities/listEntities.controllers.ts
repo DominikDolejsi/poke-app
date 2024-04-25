@@ -1,20 +1,25 @@
 import { Request, Response, NextFunction } from "express";
-import { ListEntity, ListEntityDB } from "./listEntities.model.js";
+import { ListEntity, updateListEntity } from "./listEntities.model.js";
 import * as listEntitiesServices from "./listEntities.services.js";
-import { paramsWithId } from "../../../types/paramsWithId.js";
-import { IdList } from "../../../types/idList.js";
-import { EmptyParams, EmptyBody } from "../../../types/expressTypes.js";
-import { ReqQuery } from "../../../types/queryTypes.js";
-import { queryFormater } from "../../../utils/queryFormater.js";
+import { zParse } from "../../../utils/zParse.js";
+import {
+  createSchema,
+  deleteManySchema,
+  deleteSchema,
+  getAllSchema,
+  getOneSchema,
+  updateSchema,
+} from "../../../types/reqSchemaTypes.js";
 
 export const getAll = async (
-  req: Request<EmptyParams, EmptyBody, EmptyBody, ReqQuery>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const reqQuery = queryFormater(req.query);
-    const foundListEntities = await listEntitiesServices.findAll(reqQuery);
+    const { query } = await zParse(getAllSchema, req);
+
+    const foundListEntities = await listEntitiesServices.findAll(query);
     res.status(200).json(foundListEntities);
   } catch (error) {
     next(error);
@@ -22,12 +27,20 @@ export const getAll = async (
 };
 
 export const create = async (
-  req: Request<Record<string, never>, ListEntityDB, ListEntity>,
-  res: Response<ListEntityDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const createdListEntity = await listEntitiesServices.create(req.body);
+    const { query, body } = await zParse(
+      createSchema.extend({ body: ListEntity }),
+      req,
+    );
+
+    const createdListEntity = await listEntitiesServices.create(
+      body,
+      query.deep,
+    );
     res.status(201).json(createdListEntity);
   } catch (error) {
     next(error);
@@ -35,12 +48,17 @@ export const create = async (
 };
 
 export const getOne = async (
-  req: Request<ParamsWithId, ListEntityDB>,
-  res: Response<ListEntityDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const foundListEntity = await listEntitiesServices.findOne(Number(req.params.id));
+    const { query, params } = await zParse(getOneSchema, req);
+
+    const foundListEntity = await listEntitiesServices.findOne(
+      params.id,
+      query.deep,
+    );
     res.status(200).json(foundListEntity);
   } catch (error) {
     next(error);
@@ -48,14 +66,20 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, ListEntityDB, ListEntity>,
-  res: Response<ListEntityDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
+    const { body, params, query } = await zParse(
+      updateSchema.extend({ body: updateListEntity }),
+      req,
+    );
+
     const updatedListEntity = await listEntitiesServices.update(
-      Number(req.params.id),
-      req.body,
+      params.id,
+      body,
+      query.deep,
     );
     res.status(200).json(updatedListEntity);
   } catch (error) {
@@ -64,12 +88,14 @@ export const update = async (
 };
 
 export const deleteOne = async (
-  req: Request<ParamsWithId>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const deletedListEntity = await listEntitiesServices.deleteOne(Number(req.params.id));
+    const { params } = await zParse(deleteSchema, req);
+
+    const deletedListEntity = await listEntitiesServices.deleteOne(params.id);
     res.sendStatus(204);
   } catch (error) {
     next(error);
@@ -77,12 +103,17 @@ export const deleteOne = async (
 };
 
 export const deleteMany = async (
-  req: Request<Record<string, never>, Record<string, never>, IdList>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const deletedListEntities = await listEntitiesServices.deleteMany(req.body);
+    const { body } = await zParse(deleteManySchema, req);
+
+    const deletedListEntities = await listEntitiesServices.deleteMany(
+      body.ids,
+      body.deleteAll,
+    );
     res.sendStatus(204);
   } catch (error) {
     next(error);

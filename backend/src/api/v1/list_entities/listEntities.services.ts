@@ -1,17 +1,15 @@
 import {
   ListEntities,
-  ListEntityDB,
   ListEntity,
   updateListEntity,
 } from "./listEntities.model.js";
-import { IdList } from "../../../types/idList.js";
-import { FormatedQuery } from "../../../types/queryTypes.js";
+import { ManyQuery } from "../../../types/queryTypes.js";
 
 export const findAll = async ({
   limit,
   offset,
   deep,
-}: FormatedQuery): Promise<ListEntityDB[]> => {
+}: ManyQuery): Promise<typeof foundListEntites> => {
   const foundListEntites = await ListEntities.findMany({
     take: limit,
     skip: offset,
@@ -22,49 +20,30 @@ export const findAll = async ({
 
 export const create = async (
   newListEntity: ListEntity,
-): Promise<ListEntityDB> => {
+  deep: boolean,
+): Promise<typeof createdListEntity> => {
   const { list, pokemon, form, ...props } = newListEntity;
-
-  let connectedListEntity;
 
   const createdListEntity = await ListEntities.create({
     data: {
       ...props,
       list: { connect: { id: list.id } },
+      pokemon: pokemon ? { connect: { id: pokemon.id } } : undefined,
+      form: form ? { connect: { id: form.id } } : undefined,
     },
-    include: { pokemon: true, list: true, form: true },
+    include: { pokemon: deep, list: deep, form: deep },
   });
-
-  if (pokemon) {
-    connectedListEntity = await ListEntities.update({
-      where: { id: createdListEntity.id },
-      data: {
-        pokemon: { connect: { id: pokemon.id } },
-      },
-      include: { pokemon: true, list: true, form: true },
-    });
-  }
-
-  if (form) {
-    connectedListEntity = await ListEntities.update({
-      where: { id: createdListEntity.id },
-      data: {
-        form: { connect: { id: form.id } },
-      },
-      include: { pokemon: true, list: true, form: true },
-    });
-  }
-  if (connectedListEntity) {
-    return connectedListEntity;
-  }
 
   return createdListEntity;
 };
 
-export const findOne = async (listEntityId: number): Promise<ListEntityDB> => {
+export const findOne = async (
+  listEntityId: number,
+  deep: boolean,
+): Promise<typeof foundListEntity> => {
   const foundListEntity = await ListEntities.findUniqueOrThrow({
     where: { id: listEntityId },
-    include: { pokemon: true, list: true, form: true },
+    include: { pokemon: deep, list: deep, form: deep },
   });
   return foundListEntity;
 };
@@ -72,65 +51,39 @@ export const findOne = async (listEntityId: number): Promise<ListEntityDB> => {
 export const update = async (
   listEntityId: number,
   newListEntity: updateListEntity,
-): Promise<ListEntityDB> => {
+  deep: boolean,
+): Promise<typeof updatedListEntity> => {
   const { list, pokemon, form, ...props } = newListEntity;
 
-  let updatedPokemonForm;
-
-  updatedPokemonForm = await ListEntities.update({
+  const updatedListEntity = await ListEntities.update({
     where: { id: listEntityId },
-    data: props,
-    include: { pokemon: true, list: true, form: true },
+    data: {
+      ...props,
+      list: list ? { connect: { id: list.id } } : undefined,
+      pokemon: pokemon ? { connect: { id: pokemon.id } } : undefined,
+      form: form ? { connect: { id: form.id } } : undefined,
+    },
+    include: { pokemon: deep, list: deep, form: deep },
   });
 
-  if (list) {
-    updatedPokemonForm = await ListEntities.update({
-      where: { id: listEntityId },
-      data: {
-        list: { connect: { id: list.id } },
-      },
-      include: { pokemon: true, list: true, form: true },
-    });
-  }
-
-  if (pokemon) {
-    updatedPokemonForm = await ListEntities.update({
-      where: { id: listEntityId },
-      data: {
-        pokemon: { connect: { id: pokemon.id } },
-      },
-      include: { pokemon: true, list: true, form: true },
-    });
-  }
-
-  if (form) {
-    updatedPokemonForm = await ListEntities.update({
-      where: { id: listEntityId },
-      data: {
-        form: { connect: { id: form.id } },
-      },
-      include: { pokemon: true, list: true, form: true },
-    });
-  }
-
-  return updatedPokemonForm;
+  return updatedListEntity;
 };
 
 export const deleteOne = async (
   listEntityId: number,
-): Promise<ListEntityDB> => {
+): Promise<typeof deletedListEntity> => {
   const deletedListEntity = await ListEntities.delete({
     where: { id: listEntityId },
-    include: { pokemon: true, list: true, form: true },
   });
   return deletedListEntity;
 };
 
 export const deleteMany = async (
-  IdList: IdList,
-): Promise<{ count: number }> => {
-  const deletedGame = await ListEntities.deleteMany({
-    where: { id: { in: IdList.idList } },
+  listEntityIds: number[],
+  deleteAll: boolean,
+): Promise<typeof deletedListEntities> => {
+  const deletedListEntities = await ListEntities.deleteMany({
+    where: deleteAll ? undefined : { id: { in: listEntityIds } },
   });
-  return deletedGame;
+  return deletedListEntities;
 };

@@ -1,5 +1,3 @@
-import { pokemon } from "../api/v1/pokemons/pokemons.model.js";
-
 export type Stat = {
   base_stat: number;
   stat: {

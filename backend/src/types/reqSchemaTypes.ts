@@ -4,8 +4,10 @@ import {
   oneQuerySchema,
   pokemonOneQuerySchema,
 } from "./queryTypes.js";
-import { paramsId } from "./paramsTypes.js";
-import { deleteManyBodySchema } from "./bodyTypes.js";
+import { paramsId, paramsUuid } from "./paramsTypes.js";
+import { LoginCredentials, deleteManyBodySchema } from "./bodyTypes.js";
+import { user } from "../api/v1/users/users.model.js";
+import { JwtToken } from "./cookieTypes.js";
 
 export const getAllSchema = z.object({
   query: manyQuerySchema,
@@ -31,10 +33,33 @@ export const updateSchema = z.object({
 });
 
 export const deleteSchema = z.object({
-  query: oneQuerySchema,
   params: paramsId,
 });
 
 export const deleteManySchema = z.object({
   body: deleteManyBodySchema,
 });
+
+export const hashPasswordSchema = z.object({
+  body: user.pick({
+    password: true,
+  }),
+});
+
+export const getOneUserSchema = z.object({
+  query: oneQuerySchema,
+  params: paramsUuid,
+});
+
+export const updateUserSchema = z.object({
+  query: oneQuerySchema,
+  params: paramsUuid,
+});
+
+export const deleteUserSchema = z.object({
+  params: paramsUuid,
+});
+
+export const loginSchema = z.object({ body: LoginCredentials });
+
+export const refreshSchema = z.object({ cookies: JwtToken });

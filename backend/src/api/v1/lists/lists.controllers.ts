@@ -1,11 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { list, listDB, updateList } from "./lists.model.js";
+import { list, updateList } from "./lists.model.js";
 import * as listsServices from "./lists.services.js";
-import { paramsWithId } from "../../../types/paramsWithId.js";
-import { IdList } from "../../../types/idList.js";
-import { EmptyParams, EmptyBody } from "../../../types/expressTypes.js";
-import { ReqQuery } from "../../../types/queryTypes.js";
-import { queryFormater } from "../../../utils/queryFormater.js";
 import { zParse } from "../../../utils/zParse.js";
 import {
   createSchema,
@@ -88,9 +83,9 @@ export const deleteOne = async (
   next: NextFunction,
 ) => {
   try {
-    const { query, params } = await zParse(deleteSchema, req);
+    const { params } = await zParse(deleteSchema, req);
 
-    const deletedList = await listsServices.deleteOne(params.id, query.deep);
+    const deletedList = await listsServices.deleteOne(params.id);
     res.sendStatus(204);
   } catch (error) {
     next(error);

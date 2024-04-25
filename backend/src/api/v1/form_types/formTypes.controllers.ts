@@ -1,7 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { formType, formTypeDB, UpdateFormType } from "./formTypes.model.js";
+import { formType, updateFormType } from "./formTypes.model.js";
 import * as formTypesServices from "./formTypes.services.js";
-import { paramsWithId } from "../../../types/paramsWithId.js";
+import { zParse } from "../../../utils/zParse.js";
+import {
+  createSchema,
+  deleteSchema,
+  getAllSchema,
+  getOneSchema,
+  updateSchema,
+} from "../../../types/reqSchemaTypes.js";
 
 export const getAll = async (
   req: Request,
@@ -9,7 +16,9 @@ export const getAll = async (
   next: NextFunction,
 ) => {
   try {
-    const foundFormTypes = await formTypesServices.findAll();
+    const { query } = await zParse(getAllSchema, req);
+
+    const foundFormTypes = await formTypesServices.findAll(query);
     res.status(200).json(foundFormTypes);
   } catch (error) {
     next(error);
@@ -17,12 +26,17 @@ export const getAll = async (
 };
 
 export const create = async (
-  req: Request<Record<string, never>, FormTypeDB, FormType>,
-  res: Response<FormTypeDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const createdFormType = await formTypesServices.create(req.body);
+    const { body, query } = await zParse(
+      createSchema.extend({ body: formType }),
+      req,
+    );
+
+    const createdFormType = await formTypesServices.create(body, query.deep);
     res.status(201).json(createdFormType);
   } catch (error) {
     next(error);
@@ -30,13 +44,16 @@ export const create = async (
 };
 
 export const getOne = async (
-  req: Request<ParamsWithId, FormTypeDB>,
-  res: Response<FormTypeDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
+    const { query, params } = await zParse(getOneSchema, req);
+
     const foundFormType = await formTypesServices.findOne(
-      Number(req.params.id),
+      params.id,
+      query.deep,
     );
     res.status(200).json(foundFormType);
   } catch (error) {
@@ -45,14 +62,20 @@ export const getOne = async (
 };
 
 export const update = async (
-  req: Request<ParamsWithId, FormTypeDB, UpdateFormType>,
-  res: Response<FormTypeDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
+    const { body, params, query } = await zParse(
+      updateSchema.extend({ body: updateFormType }),
+      req,
+    );
+
     const updatedFormType = await formTypesServices.update(
-      Number(req.params.id),
-      req.body,
+      params.id,
+      body,
+      query.deep,
     );
     res.status(200).json(updatedFormType);
   } catch (error) {
@@ -61,14 +84,14 @@ export const update = async (
 };
 
 export const deleteOne = async (
-  req: Request<ParamsWithId>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const deletedFormType = await formTypesServices.deleteOne(
-      Number(req.params.id),
-    );
+    const { params } = await zParse(deleteSchema, req);
+
+    const deletedFormType = await formTypesServices.deleteOne(params.id);
     res.sendStatus(204);
   } catch (error) {
     next(error);

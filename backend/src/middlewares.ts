@@ -8,6 +8,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JwtPayload } from "jsonwebtoken";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
+import { hashPasswordSchema } from "./types/reqSchemaTypes.js";
+import { zParse } from "./utils/zParse.js";
 
 export const authorizeUser = async (
   req: Request,
@@ -64,12 +66,14 @@ export const verifyJWT = async (
 };
 
 export const hashPassword = async (
-  req: Request<object, object, User>,
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    req.body.password = await bcrypt.hash(req.body.password, 10);
+    const { body } = await zParse(hashPasswordSchema, req);
+
+    req.body.password = await bcrypt.hash(body.password, 10);
     next();
   } catch (error) {
     next(error);
@@ -139,4 +143,3 @@ export const handleNotFound = (
     next(error);
   }
 };
-

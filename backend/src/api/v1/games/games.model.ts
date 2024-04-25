@@ -9,6 +9,8 @@ export const game = z.object({
 
 export const gameDB = game.extend({
   id: z.number().int(),
+  createdAt: z.date(),
+  updatedAt: z.nullable(z.date()),
 });
 
 export const updateGame = game.partial();

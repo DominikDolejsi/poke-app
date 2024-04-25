@@ -1,50 +1,45 @@
-import {
-  FormTypes,
-  formTypeDB,
-  formType,
-  UpdateFormType,
-} from "./formTypes.model.js";
+import { ManyQuery } from "../../../types/queryTypes.js";
+import { FormTypes, UpdateFormType, FormType } from "./formTypes.model.js";
 
-export const findAll = async (): Promise<FormTypeDB[]> => {
+export const findAll = async ({
+  limit,
+  offset,
+  deep,
+}: ManyQuery): Promise<typeof foundFormTypes> => {
   const foundFormTypes = await FormTypes.findMany({
-    include: { forms: true },
+    take: limit,
+    skip: offset,
+    include: { forms: deep },
   });
   return foundFormTypes;
 };
 
-export const create = async (newFormType: FormType): Promise<FormTypeDB> => {
+export const create = async (
+  newFormType: FormType,
+  deep: boolean,
+): Promise<typeof createdFormType> => {
   const { forms, ...rest } = newFormType;
 
-  let updatedFormType;
-
   const createdFormType = await FormTypes.create({
-    data: rest,
-    include: { forms: true },
+    data: {
+      ...rest,
+      forms: forms
+        ? { connect: forms.map((form) => ({ id: form.id })) }
+        : undefined,
+    },
+    include: { forms: deep },
   });
-
-  if (forms) {
-    const formIds = forms.map((form) => {
-      return { id: form.id };
-    });
-
-    updatedFormType = await FormTypes.update({
-      where: { id: createdFormType.id },
-      data: {
-        forms: { connect: formIds },
-      },
-      include: { forms: true },
-    });
-  }
-
-  if (updatedFormType) return updatedFormType;
 
   return createdFormType;
 };
 
-export const findOne = async (formTypeId: number): Promise<FormTypeDB> => {
+export const findOne = async (
+  formTypeId: number,
+  deep: boolean,
+): Promise<typeof foundFormType> => {
   const foundFormType = await FormTypes.findUniqueOrThrow({
     where: { id: formTypeId },
-    include: { forms: true },
+    include: { forms: deep },
   });
   return foundFormType;
 };
@@ -52,38 +47,29 @@ export const findOne = async (formTypeId: number): Promise<FormTypeDB> => {
 export const update = async (
   formTypeId: number,
   newFormType: UpdateFormType,
-): Promise<FormTypeDB> => {
+  deep: boolean,
+): Promise<typeof updatedFormType> => {
   const { forms, ...rest } = newFormType;
 
-  let updatedFormType;
-
-  updatedFormType = await FormTypes.update({
+  const updatedFormType = await FormTypes.update({
     where: { id: formTypeId },
-    data: rest,
-    include: { forms: true },
+    data: {
+      ...rest,
+      forms: forms
+        ? { connect: forms.map((form) => ({ id: form.id })) }
+        : undefined,
+    },
+    include: { forms: deep },
   });
-
-  if (forms) {
-    const formIds = forms.map((form) => {
-      return { id: form.id };
-    });
-
-    updatedFormType = await FormTypes.update({
-      where: { id: formTypeId },
-      data: {
-        forms: { connect: formIds },
-      },
-      include: { forms: true },
-    });
-  }
 
   return updatedFormType;
 };
 
-export const deleteOne = async (formTypeId: number): Promise<FormTypeDB> => {
+export const deleteOne = async (
+  formTypeId: number,
+): Promise<typeof deletedFormType> => {
   const deletedFormType = await FormTypes.delete({
     where: { id: formTypeId },
-    include: { forms: true },
   });
   return deletedFormType;
 };

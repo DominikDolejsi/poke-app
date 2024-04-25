@@ -64,11 +64,9 @@ export const update = async (
 
 export const deleteOne = async (
   listId: number,
-  deep: boolean,
 ): Promise<typeof deletedList> => {
   const deletedList = await Lists.delete({
     where: { id: listId },
-    include: { user: deep },
   });
   return deletedList;
 };
@@ -78,7 +76,7 @@ export const deleteMany = async (
   deleteAll: boolean,
 ): Promise<typeof deletedLists> => {
   const deletedLists = await Lists.deleteMany({
-    where: { id: { in: listIds } },
+    where: deleteAll ? undefined : { id: { in: listIds } },
   });
   return deletedLists;
 };

@@ -1,16 +1,26 @@
 import { Request, Response, NextFunction } from "express";
 import * as userServices from "../api/v1/users/users.services.js";
 import * as authServices from "./auth.services.js";
-import { LoginCredentials } from "../types/loginCredentials.js";
-import { user, userDB } from "../api/v1/users/users.model.js";
+import { user } from "../api/v1/users/users.model.js";
+import {
+  createSchema,
+  loginSchema,
+  refreshSchema,
+} from "../types/reqSchemaTypes.js";
+import { zParse } from "../utils/zParse.js";
 
 export const register = async (
-  req: Request<object, object, User>,
-  res: Response<UserDB>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const newUser = await userServices.create(req.body);
+    const { body, query } = await zParse(
+      createSchema.extend({ body: user }),
+      req,
+    );
+
+    const newUser = await userServices.create(body, query.deep);
     res.status(201).json(newUser);
   } catch (error) {
     next(error);
@@ -18,13 +28,15 @@ export const register = async (
 };
 
 export const login = async (
-  req: Request<object, object, LoginCredentials>,
-  res: Response<{ accessToken: string }>,
+  req: Request,
+  res: Response,
   next: NextFunction,
 ) => {
   try {
-    const foundUser = await authServices.authenticateUser(req.body);
-    await authServices.checkPassword(foundUser, req.body.password);
+    const { body } = await zParse(loginSchema, req);
+
+    const foundUser = await authServices.authenticateUser(body.email);
+    await authServices.checkPassword(foundUser, body.password);
     const accessToken = authServices.createAccessToken(foundUser.id);
     const refreshToken = authServices.createRefreshToken(foundUser.id);
     await authServices.saveRefreshToken(foundUser.id, refreshToken);
@@ -48,7 +60,9 @@ export const refresh = async (
   next: NextFunction,
 ) => {
   try {
-    const accessToken = await authServices.verifyRefreshToken(req.cookies.jwt);
+    const { cookies } = await zParse(refreshSchema, req);
+
+    const accessToken = await authServices.verifyRefreshToken(cookies.jwt);
 
     res.status(200).json({ accessToken });
   } catch (error) {
